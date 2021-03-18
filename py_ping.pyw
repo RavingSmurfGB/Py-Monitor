@@ -1,4 +1,4 @@
-import os, time, re
+import os, time, subprocess
 from datetime import datetime
 
 
@@ -51,8 +51,6 @@ OS_TYPE = os.name
 # Sets the count modifier to the os type
 COUNT = '-n' if OS_TYPE == 'nt' else '-c'
 
-#ip_list = ["127.0.0.1", "192.168.3.200", "192.168.3.1", "1.1.1.1", "Google.com", "192.168.3.205"]
-#ip_list = ["192.168.3.245"]
 
 
 ip_dictionary = { #Creates an dictionary with all the ip addresses needed and whether they are currently reachable
@@ -66,47 +64,16 @@ ip_dictionary = { #Creates an dictionary with all the ip addresses needed and wh
 ip_list = [*ip_dictionary] # Selects only the keys from the dictionary, for use in pinging
 
 
-response = os.popen(f"route print").read()
-
-#print(response)
-
-#if "0.0.0.0" in response:
-
-
+response = subprocess.Popen(f"route print").read() #Does the route print command and gives 
 list_response = response.splitlines()
-
-#print(list_response)
 
 
 for line in list_response:
-    if '0.0.0.0' in line:
+    if ' 0.0.0.0' in line:
         print (line)
 
+#subprocess
 
-
-txt = "The rain in Spain"
-x = re.search("^0.0.0.0$", str(list_response))
-
-if x:
-  print("YES! We have a match!")
-else:
-  print("No match")
-
-
-
-print(re.findall("0.0.0.0", str(list_response)))
-
-
-'''
-dataLog = []
-with open('results.txt', 'rt') as f:
-    data = f.readlines()
-for line in data:
-    if line.__contains__('Unsuccessful'):
-        print(line)
-        dataLog.append(line)
-print(dataLog)
-'''
 
 '''
 ##########################################[Ping Logic & logging]##########################################
