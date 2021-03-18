@@ -5,6 +5,9 @@ from datetime import datetime
 ##########################################[TO DO]##########################################
 #
 # Add in support for split tunnel vpn
+#   Look in to using power shell commands in python
+#       check for vpn adapter via python
+#       install vpn adapter using powershell script
 #   Check if VPN adapter is installed
 #   Install it if not
 #   set it to launch by defualt 
@@ -12,12 +15,15 @@ from datetime import datetime
 
 # Work on ping logging
 #   Store 6 months worth of logs
+#       store month logs in seperate files
 #       delete anythin that is older
 #   Store whether the Ip was last reachable in a dictionary with the IP
 #       only log on successfull ping if previous ping was unsuccessfull
 #       only log on unsuccessfull ping if previous was not successfull
 
-# Ping verbosity
+# Ping 
+#   Check for current active IP and add it to the ip_dictionary
+#   Check for the current defualt gateway and add it to the ip_dictionary
 #   Check arp table for ip address if recieved failed responde
 #       Then log accorgingly
 
@@ -137,3 +143,10 @@ while True:
 
 
 
+
+
+
+
+''' Based on
+https://github.com/labeveryday/ping_script/blob/master/tool.py
+'''
