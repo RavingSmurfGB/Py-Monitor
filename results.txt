@@ -1,5 +1,2 @@
-18/03/2021 16:07:53 -- Down 192.168.3.205 Ping Unsuccessful
-18/03/2021 16:08:08 -- Down 192.168.3.205 Ping Unsuccessful
-18/03/2021 16:08:23 -- Down 192.168.3.205 Ping Unsuccessful
-18/03/2021 16:10:47 -- Down 192.168.3.205 Ping Unsuccessful
-18/03/2021 16:11:41 -- UP 127.0.0.1 Ping Successful
+hi18/03/2021 17:35:20 -- UP 127.0.0.1 Ping Successful
+18/03/2021 17:35:34 -- Down 192.168.3.205 Ping Unsuccessful

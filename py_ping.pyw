@@ -1,4 +1,4 @@
-import os, time
+import os, time, re
 from datetime import datetime
 
 
@@ -17,11 +17,12 @@ from datetime import datetime
 #   Store 6 months worth of logs
 #       store month logs in seperate files
 #       delete anythin that is older
-#   Store whether the Ip was last reachable in a dictionary with the IP
-#       only log on successfull ping if previous ping was unsuccessfull
-#       only log on unsuccessfull ping if previous was not successfull
+#   Store whether the Ip was last reachable in a dictionary with the IP                         Done
+#       only log on successfull ping if previous ping was unsuccessfull                         Done
+#       only log on unsuccessfull ping if previous was not successfull                          Done
 
 # Ping 
+#   Use threading for ping checks
 #   Check for current active IP and add it to the ip_dictionary
 #   Check for the current defualt gateway and add it to the ip_dictionary
 #   Check arp table for ip address if recieved failed responde
@@ -40,10 +41,6 @@ from datetime import datetime
 
 ##########################################[ISSUES]##########################################
 #
-# logic currently not working as expected, should be:
-#       only log on successfull ping if previous ping was unsuccessfull
-#       only log on unsuccessfull ping if previous was not successfull
-
 
 ##########################################
 
@@ -65,28 +62,53 @@ ip_dictionary = { #Creates an dictionary with all the ip addresses needed and wh
     "1.1.1.1" : True,
     "8.8.8.8" : True,
     "192.168.3.205" : True
-
 }
-
 ip_list = [*ip_dictionary] # Selects only the keys from the dictionary, for use in pinging
 
 
+response = os.popen(f"route print").read()
 
-##need to iterate through dictionary to see if key and value exist
-# example does ip = false
+#print(response)
+
+#if "0.0.0.0" in response:
+
+
+list_response = response.splitlines()
+
+#print(list_response)
+
+
+for line in list_response:
+    if '0.0.0.0' in line:
+        print (line)
+
+
+
+txt = "The rain in Spain"
+x = re.search("^0.0.0.0$", str(list_response))
+
+if x:
+  print("YES! We have a match!")
+else:
+  print("No match")
+
+
+
+print(re.findall("0.0.0.0", str(list_response)))
+
+
 '''
-ip = "1.1.1.1"
-for ip_dict, bool_dict in ip_dictionary.items(): # Iterates through ip_dictionary and assigns ip_dict to key and bool_dict to value
-    if ip == ip_dict and bool_dict == True:
-            print(ip + str(bool_dict))
-
-    elif ip == ip_dict and bool_dict == False:#  Iterates through ip_dictionary and assigns ip_dict to key and bool_dict to value
-            print(ip + str(bool_dict))
-    else:
-        print("IP not found")
+dataLog = []
+with open('results.txt', 'rt') as f:
+    data = f.readlines()
+for line in data:
+    if line.__contains__('Unsuccessful'):
+        print(line)
+        dataLog.append(line)
+print(dataLog)
 '''
 
-
+'''
 ##########################################[Ping Logic & logging]##########################################
 while True:
     for ip in ip_list:
@@ -114,6 +136,7 @@ while True:
                     print(ip + str(bool_dict))
                     with open("results.txt", "a") as file: #open's the file to allow it to be written to
                         file.write(dt_string + f" -- UP {ip} Ping Successful" + "\n")# writes to log, includes date/tim
+                    
 
 
             
@@ -140,7 +163,7 @@ while True:
         time.sleep(2)
 
 ##########################################
-
+'''
 
 
 
