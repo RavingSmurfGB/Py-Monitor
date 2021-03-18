@@ -47,12 +47,9 @@ from datetime import datetime
 
 
 
-OS_TYPE = os.name
-# Sets the count modifier to the os type
-COUNT = '-n' if OS_TYPE == 'nt' else '-c'
 
 
-
+##########################################[IP DETECTION & SETUP]##########################################
 ip_dictionary = { #Creates an dictionary with all the ip addresses needed and whether they are currently reachable
     "127.0.0.1" : False,
     "1.1.1.1" : True,
@@ -61,23 +58,26 @@ ip_dictionary = { #Creates an dictionary with all the ip addresses needed and wh
 ip_list = [*ip_dictionary] # Selects only the keys from the dictionary, for use in pinging
 
 
-response = subprocess.Popen("route print", stdout=subprocess.PIPE)
-for line in iter(response.stdout.readline, ""):
-    line = line.decode("utf-8")
-    if ' 0.0.0.0' in line:
-        ip_list = list(line.split())
-        ip_dictionary[ip_list[2]] = True # Defualt gateway
-        ip_dictionary[ip_list[3]] = True # Current IP
+response = subprocess.Popen("route print", stdout=subprocess.PIPE) # set's the variable response as the returned info from route print
+for line in iter(response.stdout.readline, ""): # iterates through each line of the response and does bellow
+    line = line.decode("utf-8") # Decodes the result in to utf-8 and converts to string
+    if ' 0.0.0.0' in line: # If in that section it matches " 0.0.0.0" 
+        returned_ip_list = list(line.split()) # The above string is then split into lists 
+        ip_dictionary[returned_ip_list[2]] = True # We select the Defualt gateway from the list
+        ip_dictionary[returned_ip_list[3]] = True # We select the Current IP from the list
         break
+##########################################
 
 
-print(ip_dictionary)
 
-'''
+
+
+
 ##########################################[Ping Logic & logging]##########################################
 while True:
     for ip in ip_list:
-        response = os.popen(f"ping {ip} {COUNT} 1").read()
+
+        response = os.popen(f"ping {ip} -n 1").read()
         #print(ip_dictionary)
         dt_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S") #set's the date and time to now
 
@@ -128,7 +128,7 @@ while True:
         time.sleep(2)
 
 ##########################################
-'''
+
 
 
 
