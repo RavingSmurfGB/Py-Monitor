@@ -55,25 +55,23 @@ COUNT = '-n' if OS_TYPE == 'nt' else '-c'
 
 ip_dictionary = { #Creates an dictionary with all the ip addresses needed and whether they are currently reachable
     "127.0.0.1" : False,
-    "192.168.3.200" : True,
-    "192.168.3.1" : True,
     "1.1.1.1" : True,
     "8.8.8.8" : True,
-    "192.168.3.205" : True
 }
 ip_list = [*ip_dictionary] # Selects only the keys from the dictionary, for use in pinging
 
 
-response = subprocess.Popen(f"route print").read() #Does the route print command and gives 
-list_response = response.splitlines()
-
-
-for line in list_response:
+response = subprocess.Popen("route print", stdout=subprocess.PIPE)
+for line in iter(response.stdout.readline, ""):
+    line = line.decode("utf-8")
     if ' 0.0.0.0' in line:
-        print (line)
+        ip_list = list(line.split())
+        ip_dictionary[ip_list[2]] = True # Defualt gateway
+        ip_dictionary[ip_list[3]] = True # Current IP
+        break
 
-#subprocess
 
+print(ip_dictionary)
 
 '''
 ##########################################[Ping Logic & logging]##########################################
