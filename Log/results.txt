@@ -1,3 +1,26 @@
 
-19/03/2021 19:04:33 -- STARTUP 
-19/03/2021 19:04:34 -- LoopBack -- 127.0.0.1 Ping Successful
+19/03/2021 20:07:31 -- STARTUP 
+19/03/2021 20:07:32 -- LoopBack -- 127.0.0.1 Ping Successful
+19/03/2021 20:07:42 -- TEST UNSECCEFUL -- 125.0.0.1 Ping Unsuccessful -- Arp not Found
+
+19/03/2021 20:17:56 -- STARTUP 
+
+19/03/2021 20:18:09 -- STARTUP 
+19/03/2021 20:18:09 -- LoopBack -- 127.0.0.1 Ping Successful
+
+19/03/2021 20:20:01 -- STARTUP 
+19/03/2021 20:20:02 -- LoopBack -- 127.0.0.1 Ping Successful
+
+19/03/2021 20:20:16 -- STARTUP 
+19/03/2021 20:20:17 -- LoopBack -- 127.0.0.1 Ping Successful
+
+19/03/2021 20:32:59 -- STARTUP 
+19/03/2021 20:33:03 -- LoopBack -- 127.0.0.1 Ping Successful
+
+19/03/2021 20:35:50 -- STARTUP 
+
+19/03/2021 20:36:37 -- STARTUP 
+
+19/03/2021 20:37:09 -- STARTUP 
+
+19/03/2021 20:37:22 -- STARTUP 

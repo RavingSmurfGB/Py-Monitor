@@ -1,0 +1,9 @@
+IP_Cloudflare:
+- 1.1.1.1
+- true
+IP_Google:
+- 8.8.8.8
+- true
+LoopBack:
+- 127.0.0.1
+- true
