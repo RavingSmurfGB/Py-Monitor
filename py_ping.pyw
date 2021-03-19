@@ -99,7 +99,7 @@ while True:
                 elif ip == ip_dict and bool_dict == False: # If recieved response from ping & last ping was not succesfull then:
                     ip_dictionary[ip] = True # set current IP in dictionary to True, as ping was succesfull
                     print(ip + str(bool_dict))
-                    with open("results.txt", "a") as file: #open's the file to allow it to be written to
+                    with open("Log\\results.txt", "a+") as file: #open's the file to allow it to be written to
                         file.write(dt_string + f" -- UP {ip} Ping Successful" + "\n")# writes to log, includes date/tim
                     
 
@@ -115,7 +115,7 @@ while True:
                 if ip == ip_dict and bool_dict == True: # If did not recieve response from ping & last ping was succesfull then:
                     ip_dictionary[ip] = False # set current IP in dictionary to False, as ping was unsuccesfull
                     print(ip + str(bool_dict))
-                    with open("results.txt", "a") as file: #open's the file to allow it to be written to
+                    with open("Log\\results.txt.txt", "a+") as file: #open's the file to allow it to be written to
                         file.write(dt_string + f" -- Down {ip} Ping Unsuccessful" + "\n") #writes to log, includes date/time
 
 
