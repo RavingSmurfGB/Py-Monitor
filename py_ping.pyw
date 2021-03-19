@@ -25,8 +25,8 @@ from datetime import datetime
 #   Use threading for ping checks
 #   Check for current active IP and add it to the ip_dictionary                                             Done
 #   Check for the current defualt gateway and add it to the ip_dictionary                                   Done
-#   Check for the current DNS server and add it to the ip_dictionary
-#       Also leave a log statement showing that this is the, current_ip, defualt_gateway & DNS server       Partly
+#   Check for the current DNS server and add it to the ip_dictionary                                        Done
+#       Also leave a log statement showing that this is the, current_ip, defualt_gateway & DNS server       Done
 #   Check arp table for ip address if recieved failed responde
 #       Then log accorgingly
 
@@ -49,7 +49,6 @@ Traceback (most recent call last):
     with open("Log\\results.txt", "a+") as file: #open's the file to allow it to be written to
 PermissionError: [Errno 13] Permission denied: 'Log\\results.txt'
 '''
-# Unsuccesful ping s cause duplicates
 
 ##########################################
 
@@ -57,10 +56,19 @@ PermissionError: [Errno 13] Permission denied: 'Log\\results.txt'
 
 
 
+##########################################[STARUP]##########################################
+dt_string = datetime.now().strftime("%d/%m/%Y %H:%M:%S") #set's the date and time to now
+with open("Log\\results.txt", "a+") as file: #open's the file to allow it to be written to
+    file.write("\n" + dt_string + " -- STARTUP \n")# writes to log new startup, includes date/time
+##########################################
 
 
-##########################################[IP DETECTION & SETUP]##########################################
 
+
+
+
+##########################################[IP DETECTION & DB SETUP]##########################################
+# This code will setup the dictionary and input the static values which should allways be used
 ip_dictionary = { #Creates an dictionary with all the ip addresses needed and whether they are currently reachable
     "LoopBack" : ["127.0.0.1", False],
     "IP_Cloudflare" : ["1.1.1.1" , True],
@@ -69,8 +77,8 @@ ip_dictionary = { #Creates an dictionary with all the ip addresses needed and wh
 }
 
 
-
-response = subprocess.Popen("route print", stdout=subprocess.PIPE) # set's the variable response as the returned info from route print
+# This code will query the defualt gateway and currently used IP and add it to the dictionary
+response = subprocess.Popen("route print", stdout=subprocess.PIPE) #Performs the route print command and set's it to equal resonse
 for line in iter(response.stdout.readline, ""): # iterates through each line of the response and does bellow
     line = line.decode("utf-8") # Decodes the result in to utf-8 and converts to string
     if ' 0.0.0.0' in line: # If in that section it matches " 0.0.0.0" 
@@ -79,14 +87,20 @@ for line in iter(response.stdout.readline, ""): # iterates through each line of 
         ip_dictionary["Current IP"] = [returned_ip_list[3], True] # We select the Current IP from the list
         break 
 
-'''
-response_dns = subprocess.Popen("nslookup", stdout=subprocess.PIPE)
+# This code will query the defualt gateway and currently used DNS server and add it to the dictionary
+response_dns = subprocess.Popen("nslookup", stdout=subprocess.PIPE) #Performs the nslookup command and set's it to equal resonse_dns
 for line in iter(response_dns.stdout.readline, ""): # iterates through each line of the response and does bellow
     line = line.decode("utf-8") # Decodes the result in to utf-8 and converts to string
-'''
+    if "Address:  " in line: # If in that section it matches "Address:  "
+        returned_DNS_list = list(line.split()) #The above string is then split into lists 
+        ip_dictionary["DNS server"] = [returned_DNS_list[1], True]
+        break
 
 
 ##########################################
+
+
+
 
 
 
@@ -133,14 +147,14 @@ while True:
             for ip_name, ip_values in ip_dictionary.items(): # Iterates through ip_dictionary and assigns ip_dict to key and bool_dict to value
 
 
-                ##### UNSUCCESSFULL PING & PREVIOUSLY SUCCESFULL
-                if ip == ip_values[0] and ip_values[1] == True: # If IP address mateches current in loop & was previously succesfull then:
+                ##### UNSUCCESSFULL PING & PREVIOUSLY UNSUCCESFULL
+                if ip == ip_values[0] and ip_values[1] == False: # If IP address mateches current in loop & was previously unsuccesfull then:
                     ip_dictionary.update({ip_name: [ip_values[0], False] }) # Updates the dictionary with the boolean = True in the second slot of the array within the dictionary 
                     print(str(ip_values[0]) + str(ip_values[1])) # This simply print's the current IP address: bool_dict[0] And the if it was last succesfull: bool_dict[1]
 
 
-                ##### UNSUCCESSFULL PING & PREVIOUSLY UNSUCCESFULL
-                elif ip == ip_values[0] and ip_values[1] == False: # If IP address mateches current in loop & was previously unsuccesfull then:
+                ##### UNSUCCESSFULL PING & PREVIOUSLY SUCCESFULL
+                elif ip == ip_values[0] and ip_values[1] == True: # If IP address mateches current in loop & was previously succesfull then:
                     ip_dictionary.update({ip_name: [ip_values[0], False] }) # Updates the dictionary with the boolean = True in the second slot of the array within the dictionary 
                     print(str(ip_values[0]) + str(ip_values[1])) # This simply print's the current IP address: bool_dict[0] And the if it was last succesfull: bool_dict[1]
                     with open("Log\\results.txt", "a+") as file: #open's the file to allow it to be written to
