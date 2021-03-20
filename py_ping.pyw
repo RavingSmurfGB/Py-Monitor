@@ -188,8 +188,10 @@ for line in iter(response_dns.stdout.readline, ""): # iterates through each line
 
                         last_dns_server = ip_values[1] # We set the variable to equal the boolean from last_status .txt
                         no_match = False # Checking to see if we returned a match or not
+                        break # This should cancel the for loop, meaning once a match is found we go straight to writing the .././
 
                     else: # This code will run a number of times, but since we are only setting variables it does not matter
+                        
                         print("no match")
                         last_dns_server = True # We set the variable to equal the defualt
                         no_match = True # Checking to see if we returned a match or not
