@@ -242,7 +242,7 @@ def run_command(command, searched_var, current_loop_interface):
             break
 
 
-    if searched_var not in new_response: 
+    if searched_var not in new_response or " UnKnown" in new_response: 
         command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
 
 
