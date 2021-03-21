@@ -1,3 +1,12 @@
+Current IP:
+- 192.168.3.30
+- true
+DNS server:
+- 192.168.0.200
+- true
+Defualt_Gateway:
+- 192.168.3.1
+- true
 IP_Cloudflare:
 - 1.1.1.1
 - true
@@ -7,6 +16,3 @@ IP_Google:
 LoopBack:
 - 127.0.0.1
 - true
-DNS server:
-- 192.168.0.200
-- false
