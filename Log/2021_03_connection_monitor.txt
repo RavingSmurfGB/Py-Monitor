@@ -8,3 +8,86 @@
 /2021/03/22 18:05:24 -- WARNING -- Defualt_Gateway IP was updated 
 /2021/03/22 18:05:24 -- WARNING -- Current IP IP was updated 
 /2021/03/22 18:05:24 -- MESSAGE -- VPN was created 
+
+/2021/03/22 19:18:28 -- STARTUP 
+/2021/03/22 19:18:28 -- WARNING -- Defualt_Gateway IP was updated 
+/2021/03/22 19:18:28 -- WARNING -- Current IP IP was updated 
+
+/2021/03/22 19:20:56 -- STARTUP 
+
+/2021/03/22 19:21:19 -- STARTUP 
+
+/2021/03/22 19:21:43 -- STARTUP 
+
+/2021/03/22 19:21:57 -- STARTUP 
+
+/2021/03/22 19:22:12 -- STARTUP 
+
+/2021/03/22 19:23:15 -- STARTUP 
+
+/2021/03/22 19:23:27 -- STARTUP 
+
+/2021/03/22 19:24:00 -- STARTUP 
+
+/2021/03/22 19:24:11 -- STARTUP 
+
+/2021/03/22 19:24:47 -- STARTUP 
+
+/2021/03/22 19:25:08 -- STARTUP 
+
+/2021/03/22 19:25:38 -- STARTUP 
+
+/2021/03/22 19:26:01 -- STARTUP 
+
+/2021/03/22 19:31:29 -- STARTUP 
+
+/2021/03/22 19:33:31 -- STARTUP 
+
+/2021/03/22 19:33:53 -- STARTUP 
+
+/2021/03/22 19:46:19 -- STARTUP 
+
+/2021/03/22 19:47:16 -- STARTUP 
+/2021/03/22 19:47:16 -- WARNING -- Defualt_Gateway IP was updated 
+/2021/03/22 19:47:16 -- WARNING -- Current IP IP was updated 
+/2021/03/22 19:47:16 -- WARNING -- DNS server IP was updated 
+
+/2021/03/22 19:47:25 -- STARTUP 
+/2021/03/22 19:47:25 -- WARNING -- Defualt_Gateway IP was updated 
+/2021/03/22 19:47:25 -- WARNING -- Current IP IP was updated 
+/2021/03/22 19:47:25 -- WARNING -- DNS server IP was updated 
+
+/2021/03/22 19:47:50 -- STARTUP 
+/2021/03/22 19:47:50 -- WARNING -- Defualt_Gateway IP was updated 
+/2021/03/22 19:47:50 -- WARNING -- Current IP IP was updated 
+/2021/03/22 19:47:50 -- WARNING -- DNS server IP was updated 
+/2021/03/22 19:47:56 -- IP_Cloudflare -- 1.1.1.1 Ping Unsuccessful -- Arp not Found
+/2021/03/22 19:47:50 -- MESSAGE -- VPN was created 
+
+/2021/03/22 19:51:01 -- STARTUP 
+/2021/03/22 19:51:01 -- WARNING -- Defualt_Gateway IP was updated 
+/2021/03/22 19:51:01 -- WARNING -- Current IP IP was updated 
+/2021/03/22 19:51:01 -- WARNING -- DNS server IP was updated 
+
+/2021/03/22 19:51:27 -- STARTUP 
+
+/2021/03/22 20:24:55 -- STARTUP 
+
+/2021/03/22 20:25:25 -- STARTUP 
+
+/2021/03/22 20:38:51 -- STARTUP 
+
+/2021/03/22 20:41:57 -- STARTUP 
+
+/2021/03/22 20:43:44 -- STARTUP 
+/2021/03/22 20:43:44 -- WARNING -- Defualt_Gateway IP was updated 
+
+/2021/03/22 20:47:34 -- STARTUP 
+/2021/03/22 20:47:34 -- WARNING -- Defualt_Gateway IP was updated 
+/2021/03/22 20:47:34 -- WARNING -- Current IP IP was updated 
+/2021/03/22 20:47:34 -- WARNING -- DNS server IP was updated 
+
+/2021/03/22 20:50:35 -- STARTUP 
+/2021/03/22 20:50:35 -- WARNING -- Defualt_Gateway IP was updated 
+/2021/03/22 20:50:35 -- WARNING -- Current IP IP was updated 
+/2021/03/22 20:50:35 -- WARNING -- DNS server IP was updated 
