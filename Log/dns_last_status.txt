@@ -1,0 +1,3 @@
+aws.amazon.com: true
+google.com: true
+yahoo.com: true
