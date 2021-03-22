@@ -5,17 +5,18 @@ from datetime import datetime
 
 ##########################################[TO DO]##########################################
 # VPN
-#   Add in support for split tunnel vpn
-#   Look in to using power shell commands in python
-#       check for vpn adapter via python
-#       install vpn adapter using powershell script
-#   Check if VPN adapter is installed
-#   Install it if not
-#   set it to launch by defualt 
-#   use DNS name for my MX
+#   Add in support for split tunnel vpn                                                                     Done
+#   check for vpn adapter via python                                                                        Done
+#       install vpn adapter                                                                                 Done                                                       
+#   Check if VPN adapter is installed                                                                       Done
+#   Install it if not                                                                                       Done
+#   set it to launch by defualt                                                                             Done
+#   use DNS name for my MX                                                                                  Done
+#   Store VPN's last connection                                                                    
+#        if ip was same not log, if different log
 
 # Logging
-#   Store 6 months worth of logs
+#   Store 6 months worth of logs                                                                            Partly
 #       store month logs in seperate files                                                                  Done
 #       delete anythin that is older
 #   Store whether the Ip was last reachable in a dictionary with the IP                                     Done
@@ -42,6 +43,13 @@ from datetime import datetime
 #       only log on not connect if previous log was connect                                                 Done
 #       only log on connect if previous was not connect                                                     Done
 
+# last_status.txt rewrite
+#   combine multiple last_status.txt into one file
+#       read and write depending on different dictionaries
+#   perhaps use one function to access last_status.txt to write
+
+
+
 # Other features
 #   Rename results.txt to connection_monitor                                                                Done
 #       Set the log file and last_status.txt to be a variable declared at the top                           Done
@@ -52,11 +60,9 @@ from datetime import datetime
 #       reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 #   Allow rule for icmp acrross networks would be nice :)
 #   Document all the code                                                                                   Done
-
-
-# if ping recieves Reply from 192.168.3.30: Destination host unreachable.
-# and the ip within that string is not the same as the current one, perhaps re-do ip check at startup to modify the ip_dictionary
-#   may have to then update ip_dictionary in thread someway
+#   if ping recieves Reply from 192.168.3.30: Destination host unreachable.
+#       and the ip within that string is not the same as the current one, perhaps re-do ip check at startup to modify the ip_dictionary
+#       may have to then update ip_dictionary in thread someway
 
 
 ##########################################
@@ -131,19 +137,7 @@ backup_dns_dictionary = {
     "aws.amazon.com" : True
 }
 
-ip_dictionary = {} # Creates an empty dictionary that is used in check_last_status
-dns_dictionary = {} # Creates an empty dictionary that is used in check_last_status
-'''
-def test_function(result, var_a, var_b ):
 
-    result = var_a + var_b
-    return result
-
-
-old_result = 0
-new_result = test_function(old_result, 1, 2)
-print(new_result)
-'''
 
 
 #NEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEED to insert error checking if the file cannot be read, also log error if so
@@ -175,11 +169,33 @@ def check_last_status(current_last_status, backup_dictionary):
 
 ip_dictionary = check_last_status(ip_last_status_log, backup_ip_dictionary)
 dns_dictionary = check_last_status(dns_last_status_log, backup_dns_dictionary)
+
+
+
+
+
+def check_create_vpn():
+# This function checks if the vpn has been created if not, it will create it
+# This function is called every time vpn_reconnection is
+
+# Variables used:
+#   vpn_exists -- used to determine if vpn exists or not 
+
+    response = subprocess.getoutput('powershell -command " Get-VpnConnection  Home-Split-Tunnel"' ) #Performs the ping command and set's it to equal resonse
+    if "Name                  : Home-Split-Tunnel" in response:
+        vpn_exists = True
+    elif "Name                  : Home-Split-Tunnel" not in response:
+        subprocess.getoutput('powershell -command "Add-VpnConnection  -Name "Home-Split-Tunnel" -ServerAddress "j-wired-mnrjwwgrzz.dynamic-m.com-mnrjwwgrzz.dynamic-m.com"  -TunnelType "L2tp" -L2tpPsk "Elements" -Force -EncryptionLevel "Optional" -AuthenticationMethod Pap,Chap,MSChapv2 -RememberCredential -SplitTunneling"' ) #Performs the ping command and set's it to equal resonse
+        subprocess.getoutput('powershell -command "Add-VpnConnectionRoute -ConnectionName "Home-Split-Tunnel" -DestinationPrefix 192.168.0.0/24 "' )
+        with open(log_file, "a+") as file: #open's the file to allow it to be written to
+            file.write(dt_string + " -- MESSAGE -- VPN was created \n")# writes to log new startup, includes date/time
+        vpn_exists = True
+    else:
+        vpn_exists = False
+        with open(log_file, "a+") as file: #open's the file to allow it to be written to
+            file.write(dt_string + " -- WARNING -- VPN could not be created \n")# writes to log new startup, includes date/time
+    return vpn_exists
 ##########################################
-
-        
-
-
 
 
 
@@ -289,12 +305,41 @@ def run_command(command, searched_var, current_loop_interface):
 run_command("route print", " 0.0.0.0", "Defualt Gateway or Current IP") # Calling run_command function using route print and searching lines for " 0.0.0.0"
 run_command("nslookup", "Address:  ", "DNS Server") # Calling run_command function using nslookup and searching lines for "Address:  "
 
-##########################################[
+##########################################
 
 
 
 
 
+
+
+
+##########################################[VPN RECONNECTION & LOGGING]##########################################
+def vpn_reconnection():
+    while True:
+        vpn_exists = check_create_vpn()
+        print(str(vpn_exists))
+        
+        
+
+
+        response = subprocess.getoutput("rasdial.exe ") #Performs the ping command and set's it to equal resonse
+        if "Home-Split-Tunnel" in response:
+            print("VPN is already connected")
+
+
+        elif "No connections" in response:
+            print("VPN is not connected")
+            connect = subprocess.getoutput("rasdial.exe Home-Split-Tunnel Unattended_Devices74jg5@protonmail.com Elements") #Performs the ping command and set's it to equal resonse
+
+            if "Successfully connected to Home-Split-Tunnel." in connect:
+                print("Connected to the VPN")
+                
+
+        time.sleep(600) # sleep for ten minutes
+
+
+##########################################
 
 
 
@@ -373,7 +418,6 @@ def ping_loop():
                             file.write(dt_string + " -- " + ip_name + " -- " + ip_values[0] + " Ping Unsuccessful" + arp + "\n")# writes to log, includes date/time
 
             time.sleep(2)
-
 ##########################################
 
 
@@ -433,7 +477,6 @@ def nslookup_loop():
 
 
             time.sleep(1)
-
 ##########################################
 
 
@@ -444,10 +487,13 @@ def nslookup_loop():
 
 ##########################################[MAIN]##########################################
 thread_ping = threading.Thread(target=ping_loop) # Declares the thread_ping to thread the function ping_loop()
-#thread_ping.start() # Start's the thread
+thread_nslookup = threading.Thread(target=nslookup_loop) # Declares the thread_nslookup to the function nslookup_loop()
+thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn to the function vpn_reconnection()
 
-thread_nslookup = threading.Thread(target=nslookup_loop)
-#thread_nslookup.start() 
+thread_ping.start() 
+thread_nslookup.start() 
+thread_vpn.start()
+
 
 ##########################################
 
