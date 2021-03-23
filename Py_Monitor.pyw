@@ -12,12 +12,13 @@ from datetime import datetime
 #   Install it if not                                                                                       Done
 #   set it to launch by defualt                                                                             Done
 #   use DNS name for my MX                                                                                  Done
-#   Store VPN's last connection                                                                    
-#        if ip was same not log, if different log
+#   Store VPN's last connection                                                                             Done                                                            
+#        if ip was same not log, if different log                                                           Done
 #   Store VPN creation errors:
 #       from check_create_vpn() but log under vpn_reconnection()
 #       If errored before do not log
 #       investigate new logic function before implementing!
+#   Implement final loop sleep time
 
 # Logging
 #   Store 6 months worth of logs                                                                            Partly
@@ -29,6 +30,10 @@ from datetime import datetime
 #   Store dictionary in last_status.txt                                                                     Done
 #        if ip was same copy bool, if not same defualt bool and put warning in log                          Done
 #         implemant this per ns loookup / route print                                                       Done
+#   Merge logging into one function                                                                         Done
+#   Check if log file is empty or doesnt contain backup dictionary keys                                     Partly, IP
+#       if so rewrite
+#       implement in one function
 
 # Ping 
 #   Use threading for ping checks                                                                           Done
@@ -38,23 +43,26 @@ from datetime import datetime
 #       Also leave a log statement showing that this is the, current_ip, defualt_gateway & DNS server       Done
 #   Check arp table for ip address if recieved failed responde                                              Done
 #       Then log accorgingly                                                                                Done
-
+#   Implement final loop sleep time
 
 
 # DNS 
 #   Try to do a nslookup for google, yahoo etc..                                                            Done
 #       only log on not connect if previous log was connect                                                 Done
 #       only log on connect if previous was not connect                                                     Done
+#   Implement final loop sleep time
 
 
-# Log function                                                                                              Partly
-#   investigate merging maing log function threads in to one
-#       merge logging into one function                                                                     Partly, VPN, status_log_message()
-#   passing in information where needed
+
+
 
 
 # Other features
-#   Move respective last_status.txts into a different folder and update code
+#   implement setup file
+#   create readme file
+#       document how code is meant to work 
+#       give details of each log type, PING, VPN CONNECTION etc...
+#   Move respective last_status.txts into a different folder and update code                                Done
 #   Rename results.txt to connection_monitor                                                                Done
 #       Set the log file and last_status.txt to be a variable declared at the top                           Done
 #   Setup a file to store last status in between program restarts                                           Done
@@ -65,6 +73,8 @@ from datetime import datetime
 #   windows firewall Allow rule for icmp acrross networks would be nice :)
 #   Document all the code                                                                                   Done
 #   Move last_status files                                                                                  Done
+#   Improve error checking last status with backup_ip_dictionary
+#       to include actual ip addresses, backup_ip_dictionary value 0
 
 # Error checking
 #   error check to see if backup dictionaries are at least contained in respective last_status.txt          Done
@@ -89,6 +99,7 @@ from datetime import datetime
 #   as in on file creation, if cannot create file, popup a warning to user!!! then exit program
 
 #re_write_warning not working in last_status_loop() allways triggers when should not!
+#   allways puts WARNING -- Defualt_Gateway IP was updated  // into log
 #   allways puts WARNING -- Current IP IP was updated  // into log
 #   allways puts WARNING -- DNS server IP was updated  // into log
 
@@ -116,59 +127,6 @@ PermissionError: [Errno 13] Permission denied: 'Log\\results.txt'
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# VPN working with status_log_message()
-#   to test and implement with other functions, nslookup & ping
-# Then to move main logic to function if nesecery!
-#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ##########################################[STARUP]##########################################
 vpn_enabled = True # Used to enable or disable VPN control
 
@@ -182,7 +140,7 @@ log_file = "Log\\" + date_string + "connection_monitor.txt" # sets log file to b
 
 
 
-dt_string = datetime.now().strftime("/%Y/%m/%d %H:%M:%S") #set's the date and time to now
+dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S") #set's the date and time to now
 
 
 with open(log_file, "a+") as file: #open's the file to allow it to be written to
@@ -421,14 +379,7 @@ run_command("nslookup", "Address:  ", "DNS Server") # Calling run_command functi
 
 
 
-'''
-with open(ip_last_status_log) as file: # Opens last_status to write
-    
-    dictionaries = yaml.dump(yaml.load(file))
-    for dictionary in dictionaries:
-        print(str(dictionary))
 
-'''
 
 
 def status_log_message(catagory, message, last_status_log_file, dictionary):
@@ -440,7 +391,7 @@ def status_log_message(catagory, message, last_status_log_file, dictionary):
 
 # Example function call
 #   status_log_message("VPN Connection",  "VPN Connection Unuccessful", vpn_last_status_log ,vpn_dictionary)
-    dt_string = datetime.now().strftime("/%Y/%m/%d %H:%M:%S") #updates datetime
+    dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S") #updates datetime
 
     #Appends log file with latest message
     with open(log_file, "a+") as file:
@@ -451,15 +402,6 @@ def status_log_message(catagory, message, last_status_log_file, dictionary):
         yaml.dump(dictionary, file, sort_keys=False) 
 
 
-
-
-############################################################NOT FINISHED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-def log_logic(called_from, success_connection, last_success_connection):
-
-    if called_from == "vpn":
-        print()
-   
- 
 
 
 
@@ -558,7 +500,7 @@ def ping_loop():
             print(ip_name)
             ip = ip_dictionary[ip_name][0] # Set's the current IP address in loop from dictionary to ip
             response = subprocess.getoutput("ping " + ip + " -n 1") #Performs the ping command and set's it to equal resonse
-            dt_string = datetime.now().strftime("/%Y/%m/%d %H:%M:%S") #set's the date and time to now
+            dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S") #set's the date and time to now
 
 
 
@@ -574,12 +516,10 @@ def ping_loop():
                         ip_dictionary.update({ip_name: [ip_values[0], True] }) # Updates the dictionary with the boolean = True in the second slot of the array within the dictionary 
                         print(str(ip_values[0]) + str(ip_values[1])) # This simply print's the current IP address: bool_dict[0] And the if it was last succesfull: bool_dict[1]
                         
-                        with open(log_file, "a+") as file: #open's the file to allow it to be written to
-                            file.write(dt_string + " -- " + ip_name + " -- " + ip_values[0] + " Ping Successful" + "\n")# writes to log, includes date/time
 
-                        with open(ip_last_status_log, 'w') as file: # Opens last_status to write
-                            yaml.dump(ip_dictionary, file, sort_keys=False) #Overwrites the file with latest ip_dictionary
-                        print(str(ip_dictionary))
+                        message =  ip_name + " , "+ ip_values[0] + " Ping Successful"
+                        status_log_message("PING", message, ip_last_status_log , ip_dictionary)
+
 
 
                 
@@ -592,11 +532,11 @@ def ping_loop():
                     ##### UNSUCCESSFULL PING & PREVIOUSLY SUCCESFULL
                     if ip == ip_values[0] and ip_values[1] == True: # If IP address mateches current in loop & was previously succesfull then:
                         ip_dictionary.update({ip_name: [ip_values[0], False] }) # Updates the dictionary with the boolean = True in the second slot of the array within the dictionary 
+                        
                         print(str(ip_values[0]) + str(ip_values[1])) # This simply print's the current IP address: bool_dict[0] And the if it was last succesfull: bool_dict[1]
 
-                        with open(ip_last_status_log, 'w') as file: # Opens last_status to write
-                            yaml.dump(ip_dictionary, file, sort_keys=False) #Overwrites the file with latest ip_dictionary
-                        print(str(ip_dictionary))
+
+
 
                         response_arp = subprocess.getoutput("arp -a " + str(ip)) #Performs the arp -a command with the IP address
                         if "Interface:" in response_arp: #If ip address is found in arp table
@@ -604,8 +544,10 @@ def ping_loop():
                         elif "No ARP Entries Found." in response_arp: # if ip paddress is not found
                             arp = (" -- Arp not Found")
 
-                        with open(log_file, "a+") as file: #open's the file to allow it to be written to
-                            file.write(dt_string + " -- " + ip_name + " -- " + ip_values[0] + " Ping Unsuccessful" + arp + "\n")# writes to log, includes date/time
+
+                        message =  ip_name + " , "+ ip_values[0] + " Ping Unsuccessful" + arp
+                        status_log_message("PING", message, ip_last_status_log , ip_dictionary)
+
 
             time.sleep(2)
 ##########################################
@@ -620,11 +562,21 @@ def ping_loop():
 
 ##########################################[DNS TEST & LOGGING]##########################################
 def nslookup_loop():
+# This function iterates through dns_dictionary, tests each entry and logs accordingly
+
+# Variables used:
+#   dns_dictionary -- The DNS dictionary which contains names to be resolved and their last state, also passed to status_log_message()
+#       dns_dictionary_name -- represents the keys from dns_dictionary, dns names
+#       dns_dictionary_last_status -- represents the values from dns_dictionary_last_status, last status stored in bool
+#       dns_name -- Used to simply pull key from dns_dictionary
+#   response -- used to get string output from command
+#   message -- log message passed to status_log_message()
+#   dns_last_status_log -- last status log file passed to status_log_message()
+
     while True:
         for dns_name in dns_dictionary:
             print(dns_name)
             response = subprocess.getoutput("nslookup " + dns_name ) #Performs the ping command and set's it to equal resonse
-            dt_string = datetime.now().strftime("/%Y/%m/%d %H:%M:%S") #set's the date and time to now
 
 
             ##### SUCCESSFULL RESOLVE
@@ -638,12 +590,9 @@ def nslookup_loop():
                         dns_dictionary.update({dns_name : True}) # Updates the dns dictionary entry for current DNS, setting to true
                         print(dns_dictionary_name + str(dns_dictionary_last_status)) # Print latest info from dns dictionary
 
-                        with open(log_file, "a+") as file: #open's the file to allow it to be appended
-                            file.write(dt_string + " -- " + "DNS Resolve" + " -- " + dns_dictionary_name + " DNS Resolve Successful" + "\n")# writes to log, includes date/time
+                        message =  dns_dictionary_name + " DNS Resolve Successful"
+                        status_log_message("DNS Resolve", message, dns_last_status_log ,dns_dictionary)
 
-                        with open(dns_last_status_log, 'w') as file: # Opens last_status to write
-                            yaml.dump(dns_dictionary, file, sort_keys=False) #Overwrites the file with latest ip_dictionary
-                        print(str(dns_dictionary))
             
             
 
@@ -658,12 +607,9 @@ def nslookup_loop():
                         dns_dictionary.update({dns_name : False}) # Updates the dns dictionary entry for current DNS, setting to true
                         print(dns_dictionary_name + str(dns_dictionary_last_status)) # Print latest info from dns dictionary
 
-                        with open(log_file, "a+") as file: #open's the file to allow it to be appended
-                            file.write(dt_string + " -- " + "DNS Resolve" + " -- " + dns_dictionary_name + "  DNS Resolve Unsuccessful" + "\n")# writes to log, includes date/time
+                        message =  dns_dictionary_name + " DNS Resolve Unsuccessful"
+                        status_log_message("DNS Resolve",message , dns_last_status_log ,dns_dictionary)
 
-                        with open(dns_last_status_log, 'w') as file: # Opens last_status to write
-                            yaml.dump(dns_dictionary, file, sort_keys=False) #Overwrites the file with latest ip_dictionary
-                        print(str(dns_dictionary))
 
 
             time.sleep(1)
@@ -680,11 +626,11 @@ thread_ping = threading.Thread(target=ping_loop) # Declares the thread_ping to t
 thread_nslookup = threading.Thread(target=nslookup_loop) # Declares the thread_nslookup to the function nslookup_loop()
 thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn to the function vpn_reconnection()
 
-#thread_ping.start() 
+thread_ping.start() 
 #thread_nslookup.start() 
-
+'''
 if vpn_enabled == True:
-    thread_vpn.start()
+    thread_vpn.start()'''
 
 
 ##########################################

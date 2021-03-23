@@ -7,3 +7,12 @@ IP_Cloudflare:
 IP_Google:
 - 8.8.8.8
 - true
+Defualt_Gateway:
+- 192.168.3.1
+- true
+Current IP:
+- 192.168.3.30
+- true
+DNS server:
+- 192.168.0.200
+- true
