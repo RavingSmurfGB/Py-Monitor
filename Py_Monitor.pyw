@@ -16,12 +16,17 @@ from datetime import datetime
 #        if ip was same not log, if different log                                                           Done
 #   Store VPN creation errors:
 #       from check_create_vpn() but log under vpn_reconnection()
+#       store in vpn_last status, having to check 
 #       If errored before do not log
-#       investigate new logic function before implementing!
 #   Implement final loop sleep time
 
+
 # Logging
-#   Store 6 months worth of logs                                                                            Partly
+#   Investigate viability of having one last_status file 
+#       contaning each dictionary
+#       then pulling only the dictionary that is needed at that time
+#       also how to dump and overwrite only that dictionary
+#   Store 6/ 12 months worth of logs                                                                            Partly
 #       store month logs in seperate files                                                                  Done
 #       delete anythin that is older
 #   Store whether the Ip was last reachable in a dictionary with the IP                                     Done
@@ -34,6 +39,7 @@ from datetime import datetime
 #   Check if log file is empty or doesnt contain backup dictionary keys                                     Partly, IP
 #       if so rewrite
 #       implement in one function
+
 
 # Ping 
 #   Use threading for ping checks                                                                           Done
@@ -53,15 +59,12 @@ from datetime import datetime
 #   Implement final loop sleep time
 
 
-
-
-
-
 # Other features
 #   implement setup file
 #   create readme file
 #       document how code is meant to work 
 #       give details of each log type, PING, VPN CONNECTION etc...
+#       give details of timeing for each loop with each example
 #   Move respective last_status.txts into a different folder and update code                                Done
 #   Rename results.txt to connection_monitor                                                                Done
 #       Set the log file and last_status.txt to be a variable declared at the top                           Done
@@ -75,12 +78,17 @@ from datetime import datetime
 #   Move last_status files                                                                                  Done
 #   Improve error checking last status with backup_ip_dictionary
 #       to include actual ip addresses, backup_ip_dictionary value 0
+#   replace datetime update with function that returns current datetime
+#   verbose logging where every succesful and unsucesful:
+#       (ping, nslookup, vpn connection/vpn creation) is logged
+
 
 # Error checking
-#   error check to see if backup dictionaries are at least contained in respective last_status.txt          Done
-
+#   error check to see if backup dictionaries are at least contained in respective last_status.txt          Partly, IP
+#
 #   Error check, implement for DNS, Defualt gateway and ARP
 #       If value is not ' 0.0.0.0' in defualt gateway code for e.g. , code will crash currently
+#       perhaps make command calling into one function
 #
 #   if ping recieves Reply from 192.168.3.30: Destination host unreachable.
 #       and the ip within that string is not the same as the current one, perhaps re-do ip check at startup to modify the ip_dictionary
@@ -468,6 +476,7 @@ def vpn_reconnection():
             print("VPN DID NOT EXIST, ")
 
 
+
         time.sleep(600) # sleep for ten minutes
 
 
@@ -627,10 +636,10 @@ thread_nslookup = threading.Thread(target=nslookup_loop) # Declares the thread_n
 thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn to the function vpn_reconnection()
 
 thread_ping.start() 
-#thread_nslookup.start() 
-'''
+thread_nslookup.start() 
+
 if vpn_enabled == True:
-    thread_vpn.start()'''
+    thread_vpn.start()
 
 
 ##########################################
