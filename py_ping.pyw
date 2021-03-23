@@ -110,6 +110,8 @@ PermissionError: [Errno 13] Permission denied: 'Log\\results.txt'
 
 
 ##########################################[STARUP]##########################################
+vpn_enabled = True # Used to enable or disable VPN control
+
 ip_last_status_log = "Log\\ip_last_status.txt" # Creates a variable that stores the last_status info for ip_dictionary
 dns_last_status_log = "Log\\dns_last_status.txt" # Creates a variable that stores the last_status info for dns_dictionary
 
@@ -560,7 +562,9 @@ thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn
 
 thread_ping.start() 
 thread_nslookup.start() 
-thread_vpn.start()
+
+if vpn_enabled == True:
+    thread_vpn.start()
 
 
 ##########################################
