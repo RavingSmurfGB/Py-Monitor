@@ -14,6 +14,10 @@ from datetime import datetime
 #   use DNS name for my MX                                                                                  Done
 #   Store VPN's last connection                                                                    
 #        if ip was same not log, if different log
+#   Store VPN creation errors:
+#       from check_create_vpn() but log under vpn_reconnection()
+#       If errored before do not log
+#       investigate new logic function before implementing!
 
 # Logging
 #   Store 6 months worth of logs                                                                            Partly
@@ -43,7 +47,10 @@ from datetime import datetime
 #       only log on connect if previous was not connect                                                     Done
 
 
-
+# Log function                                                                                              Partly
+#   investigate merging maing log function threads in to one
+#       merge logging into one function                                                                     Partly, VPN, status_log_message()
+#   passing in information where needed
 
 
 # Other features
@@ -69,7 +76,6 @@ from datetime import datetime
 #       and the ip within that string is not the same as the current one, perhaps re-do ip check at startup to modify the ip_dictionary
 #       may have to then update ip_dictionary in thread someway
 
-
 ##########################################
 
 
@@ -82,6 +88,7 @@ from datetime import datetime
 #implement error checking for file creation!!
 
 #re_write_warning not working in last_status_loop() allways triggers when should not
+
 
 # When placed in program files, gives error:
 '''
@@ -110,11 +117,60 @@ PermissionError: [Errno 13] Permission denied: 'Log\\results.txt'
 
 
 
+
+
+
+
+
+
+
+
+
+
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# VPN working with status_log_message()
+#   to test and implement with other functions, nslookup & ping
+# Then to move main logic to function if nesecery!
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##########################################[STARUP]##########################################
 vpn_enabled = True # Used to enable or disable VPN control
 
 ip_last_status_log = "Status\\ip_last_status.txt" # Creates a variable that stores the last_status info for ip_dictionary
 dns_last_status_log = "Status\\dns_last_status.txt" # Creates a variable that stores the last_status info for dns_dictionary
+vpn_last_status_log = "Status\\vpn_last_status.txt" # Creates a variables that stores the last_status info for vpn_dictionary
 
 
 date_string = datetime.now().strftime("%Y_%m_") #creates a year_month string for use in creating log file
@@ -144,38 +200,48 @@ backup_dns_dictionary = {
     "aws.amazon.com" : True
 }
 
+backup_vpn_dictionary = {
+    "Home-Split-Tunnel" : True
+}
 
 
 
-def write_backup_dictionary(current_last_status, current_dictionary):
-#This function simply overwirtes what is in current_last_status
+def write_backup_dictionary(current_last_status, current_dictionary, check_name):
+# This function simply overwirtes what is in current_last_status
+# Also provides warning in log_file
 
 #Variables used:
 #   current_last_status -- Is either ip_last_status_log or dns_last_status_log
 #   current_dictionary -- Is the dictionary to be written to file (will overwrite)
+#   log_file -- Main log file used for warning
+#   check_name -- Used to pass in what's currently been writen, to post warning
 
     with open(current_last_status, "w+") as file: # Creates the file if not created before
         yaml.dump(current_dictionary, file, default_flow_style=False, sort_keys=False) #Loads in the backup to the file
 
+    with open(log_file, "a") as file: # Open's Log file and writes warning
+        file.write(dt_string + " -- WARNING -- Loaded " + check_name + " backup information \n")# writes to log new startup, includes date/time
+
 
 #NEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEED to insert error checking if a file cannot be created
-def check_last_status(current_last_status, backup_dictionary):
+def check_last_status(current_last_status, backup_dictionary, check_name):
 # This function is used to check if the last_status.txt exists  
 # If so then it will load values from it
-# If not it will load backup 
+# If not it will load backup write_backup_dictionary()
 
 #Variables used:
-# current_last_status -- contains either ip_last_status_log or dns_last_status_log
-# backup_dictionary -- contains either backup_ip_dictionary or backup_dns_dictionary
-# current_dictionary -- contains either dns_dictionary or ip_dictionary & returns the loaded dictionary
+#   current_last_status -- contains either ip_last_status_log or dns_last_status_log
+#   backup_dictionary -- contains either backup_ip_dictionary or backup_dns_dictionary
+#   current_dictionary -- contains either dns_dictionary or ip_dictionary & returns the loaded dictionary
+#   check_name -- Pased on to 
 
     # This code check's whether ip_last_status.txt exists and will load values from it if so, or create and load backup values if not
     if pathlib.Path(current_last_status).is_file(): # Does the last_status.txt exist, if so:
 
-        if os.stat("current_last_status").st_size == 0: # Check if file is empty
+        if os.stat(current_last_status).st_size == 0: # Check if file is empty
             print("file is empty")
             current_dictionary = backup_dictionary # if file is empty, load backup_dictionary,
-            write_backup_dictionary(current_last_status, current_dictionary) # Overwtire 
+            write_backup_dictionary(current_last_status, current_dictionary, check_name) # Overwtire 
 
         else:
             with open(current_last_status) as file: # Open the file as read
@@ -186,17 +252,18 @@ def check_last_status(current_last_status, backup_dictionary):
                     current_dictionary = tmp_current_last_status # on one loop this makes ip_dictionary what is read from the file, then it does the same for dns_dictionary
                 else: 
                     current_dictionary = backup_dictionary # if file is empty, load backup_dictionary, file last_status will be overwitten later on 
-                    write_backup_dictionary(current_last_status, current_dictionary)
+                    write_backup_dictionary(current_last_status, current_dictionary, check_name)
 
     else: # If file does not exist:
         current_dictionary = backup_dictionary # Set's the current_dictionary to be the backup_dictionary
-        write_backup_dictionary(current_last_status, current_dictionary)
+        write_backup_dictionary(current_last_status, current_dictionary, check_name)
 
 
     return current_dictionary
 
-ip_dictionary = check_last_status(ip_last_status_log, backup_ip_dictionary)
-dns_dictionary = check_last_status(dns_last_status_log, backup_dns_dictionary)
+ip_dictionary = check_last_status(ip_last_status_log, backup_ip_dictionary, "IP")
+dns_dictionary = check_last_status(dns_last_status_log, backup_dns_dictionary, "DNS")
+vpn_dictionary = check_last_status(vpn_last_status_log, backup_vpn_dictionary, "VPN")
 
 
 
@@ -360,12 +427,38 @@ with open(ip_last_status_log) as file: # Opens last_status to write
 '''
 
 
+def status_log_message(catagory, message, last_status_log_file, dictionary):
+# This function will write to log_file with a message
+
+# Variables used:
+#   catagory -- this is used to write in file, if it is VPN, IP or DNS
+#   message -- this is the message that will be written to log_file
+
+# Example function call
+#   status_log_message("VPN Connection",  "VPN Connection Unuccessful", vpn_last_status_log ,vpn_dictionary)
+    dt_string = datetime.now().strftime("/%Y/%m/%d %H:%M:%S") #updates datetime
+
+    #Appends log file with latest message
+    with open(log_file, "a+") as file:
+         file.write(dt_string + " -- STATUS -- " + catagory + " -- " + message + "\n")# writes to log, includes date/time
+
+    #Overwrites last_status_log with latest dictionary
+    with open(last_status_log_file, 'w') as file: 
+        yaml.dump(dictionary, file, sort_keys=False) 
 
 
 
 
-def log_logic():
-    print("hi")
+############################################################NOT FINISHED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+def log_logic(called_from, success_connection, last_success_connection):
+
+    if called_from == "vpn":
+        print()
+   
+ 
+
+
+
 
 
 
@@ -377,6 +470,11 @@ def vpn_reconnection():
 
 # Variables used:
 #   vpn_exists -- is the return in bool from check_create_vpn()
+#   response -- used to get string output from commands
+#   vpn_dictionary -- main vpn_dictionary used to keep track of the last connection status & passed to status_log_message
+#       vpn_key -- used to update dictionary
+#       vpn_value -- used to determine last status 
+#   vpn_last_status_log -- used to pass into status_log_message to log message 
 
     while True:
         vpn_exists = check_create_vpn()        
@@ -390,22 +488,38 @@ def vpn_reconnection():
             elif "No connections" in response:
                 print("VPN is not connected")
                 connect = subprocess.getoutput("rasdial.exe Home-Split-Tunnel Unattended_Devices74jg5@protonmail.com Elements") #Performs the ping command and set's it to equal resonse
+                
 
+                ##### SUCCESSFULL CONNECTION
                 if "Successfully connected to Home-Split-Tunnel." in connect:
                     print("Connected to the VPN")
+                    for vpn_key, vpn_value in vpn_dictionary.items():
 
-                    # log here if was able to connect
-                    #   only log if was previously unsucessfull at connecting
 
+                        ##### SUCCESSFULL CONNECTION & PREVIOUSLY UNSUCCESFULL
+                        if vpn_value == False:
+                            vpn_dictionary.update({vpn_key : True}) # Updates the dictionary with latest status
+                            status_log_message("VPN Connection",  "VPN Connection Successful", vpn_last_status_log ,vpn_dictionary)
+
+
+
+                ##### UNSUCCESSFULL CONNECTION
                 else:
                     print("was not able to connect to vpn")
+                    for vpn_key, vpn_value in vpn_dictionary.items():
 
-                    # log here if not able to connect 
-                    #   only log here if was previously succesfull at connecting
+
+                    ##### UNSUCCESSFULL CONNECTION & PREVIOUSLY SUCCESFULL
+                        if vpn_value == False:
+                            vpn_dictionary.update({vpn_key : False}) # Updates the dictionary with latest status
+                            status_log_message("VPN Connection",  "VPN Connection Unuccessful", vpn_last_status_log ,vpn_dictionary)
+
+
 
 
         elif vpn_exists == False:
-            print("could not connect to vpn")
+            # perhaps look into logging VPN creation 
+            print("VPN DID NOT EXIST, ")
 
 
         time.sleep(600) # sleep for ten minutes
@@ -562,8 +676,8 @@ thread_ping = threading.Thread(target=ping_loop) # Declares the thread_ping to t
 thread_nslookup = threading.Thread(target=nslookup_loop) # Declares the thread_nslookup to the function nslookup_loop()
 thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn to the function vpn_reconnection()
 
-thread_ping.start() 
-thread_nslookup.start() 
+#thread_ping.start() 
+#thread_nslookup.start() 
 
 if vpn_enabled == True:
     thread_vpn.start()
