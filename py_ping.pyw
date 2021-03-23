@@ -83,11 +83,15 @@ from datetime import datetime
 
 
 ##########################################[ISSUES]##########################################
-#When device does not have internet connection, program hangs!!!!!!!!!!!!!!!!!!!!!
+#When device does not have internet connection, program hangs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 #implement error checking for file creation!!
+#   as in on file creation, if cannot create file, popup a warning to user!!! then exit program
 
-#re_write_warning not working in last_status_loop() allways triggers when should not
+#re_write_warning not working in last_status_loop() allways triggers when should not!
+#   allways puts WARNING -- Current IP IP was updated  // into log
+#   allways puts WARNING -- DNS server IP was updated  // into log
+
 
 
 # When placed in program files, gives error:
