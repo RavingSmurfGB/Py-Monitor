@@ -57,6 +57,7 @@ from datetime import datetime
 #       reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 #   windows firewall Allow rule for icmp acrross networks would be nice :)
 #   Document all the code                                                                                   Done
+#   Move last_status files                                                                                  Done
 
 # Error checking
 #   error check to see if backup dictionaries are at least contained in respective last_status.txt          Done
@@ -112,8 +113,8 @@ PermissionError: [Errno 13] Permission denied: 'Log\\results.txt'
 ##########################################[STARUP]##########################################
 vpn_enabled = True # Used to enable or disable VPN control
 
-ip_last_status_log = "Log\\ip_last_status.txt" # Creates a variable that stores the last_status info for ip_dictionary
-dns_last_status_log = "Log\\dns_last_status.txt" # Creates a variable that stores the last_status info for dns_dictionary
+ip_last_status_log = "Status\\ip_last_status.txt" # Creates a variable that stores the last_status info for ip_dictionary
+dns_last_status_log = "Status\\dns_last_status.txt" # Creates a variable that stores the last_status info for dns_dictionary
 
 
 date_string = datetime.now().strftime("%Y_%m_") #creates a year_month string for use in creating log file
@@ -171,7 +172,7 @@ def check_last_status(current_last_status, backup_dictionary):
     # This code check's whether ip_last_status.txt exists and will load values from it if so, or create and load backup values if not
     if pathlib.Path(current_last_status).is_file(): # Does the last_status.txt exist, if so:
 
-        if os.stat("Log\\ip_last_status.txt").st_size == 0: # Check if file is empty
+        if os.stat("current_last_status").st_size == 0: # Check if file is empty
             print("file is empty")
             current_dictionary = backup_dictionary # if file is empty, load backup_dictionary,
             write_backup_dictionary(current_last_status, current_dictionary) # Overwtire 
@@ -363,7 +364,8 @@ with open(ip_last_status_log) as file: # Opens last_status to write
 
 
 
-
+def log_logic():
+    print("hi")
 
 
 

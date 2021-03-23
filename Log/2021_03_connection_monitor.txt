@@ -91,3 +91,8 @@
 /2021/03/22 20:50:35 -- WARNING -- Defualt_Gateway IP was updated 
 /2021/03/22 20:50:35 -- WARNING -- Current IP IP was updated 
 /2021/03/22 20:50:35 -- WARNING -- DNS server IP was updated 
+
+/2021/03/23 00:08:22 -- STARTUP 
+/2021/03/23 00:08:22 -- WARNING -- Defualt_Gateway IP was updated 
+/2021/03/23 00:08:22 -- WARNING -- Current IP IP was updated 
+/2021/03/23 00:08:22 -- WARNING -- DNS server IP was updated 
