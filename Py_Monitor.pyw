@@ -81,6 +81,9 @@ from datetime import datetime
 #   replace datetime update with function that returns current datetime
 #   verbose logging where every succesful and unsucesful:
 #       (ping, nslookup, vpn connection/vpn creation) is logged
+#   update ip_dictionary periodicly
+#       perhaps use counter in ping thread, when coutner = 0 update ip
+#   implement run_actual_command() for every command ran
 
 
 # Error checking
@@ -310,9 +313,9 @@ def last_status_loop(returned_list, named_ip, output_list_placement):
         tmp_ip_dictionary = yaml.load(file, Loader=yaml.FullLoader) # Set the contents to = tmp_ip_dictionary
         
         for ip_name, ip_values in tmp_ip_dictionary.items(): #Loads the tmp_ip_dictionary with ip_name as keys and ip_values as value and iterates through each line
-            #print("got here!")
 
             if ip_name == named_ip and ip_values[0] == returned_list[1]: # If the line matches "DNS server" and the ip address returned from nslookup
+                
                 last_state = ip_values[1] # We set the variable to equal the boolean from last_status .txt
                 no_match = False # Checking to see if we returned a match or not
                 break # This should cancel the for loop, meaning once a match is found we go straight to writing the .././
@@ -324,9 +327,9 @@ def last_status_loop(returned_list, named_ip, output_list_placement):
                 
         if no_match == True: # If a match was not found:
             re_write_warning(named_ip) # Set warning message and pass it in to the re_write_warning function
-
+        
         ip_dictionary[named_ip] = [returned_list[output_list_placement], last_state] #Adds the DNS server to the ip_dictionary with returned DNS IP & last_dns_server boolean
-        #print("Inseted in to dictionary" + returned_list[output_list_placement], last_state)
+
                     
 
 
@@ -341,6 +344,92 @@ def command_failed(current_loop_interface):
     with open(log_file, "a+") as file:
         file.write(dt_string + " -- ERROR -- Could not load " + current_loop_interface +  " from system, current testing IP:" + "\n " + str(ip_dictionary) + " \n")
 
+
+
+
+
+
+
+
+def run_actual_command(command):
+#This code will run any command it is given, then convert it to a decoded string
+
+#variables used:
+#   new_response -- declares an emtpy string, then used to add each decoded line together
+#   reponse -- refrences the command ran
+    new_response = ""
+    response = subprocess.Popen(command, stdout=subprocess.PIPE) #Performs the route print command and set's it to equal resonse
+    
+    for line in iter(response.stdout.readline, b''): # iterates through each line of the response and does bellow
+        line = line.decode("utf-8") # Decodes the result in to utf-8 and converts to string
+        
+        new_response = new_response + line
+
+    return new_response
+
+
+
+
+
+
+def update_database(command, searched_var, current_loop_interface): 
+# This function runs the command given, looking for searched_var. It iterates through response line by line, then splits line in to list and passes to last_status_loop()
+
+# Variables used:
+#   response -- the bytes response from running the passed in command (either nslookup or route print)
+#   line -- simply represents respone split in to lines
+#   command -- used to pass in which command to run
+#   returned_list -- is a list of the output, showed in line, contains the wanted IP
+#   searched_var -- used to narrow down the line which has the wanted IP, we iterate through line to find searched_var
+#   current_loop_interface -- passes in what the output is expected to be, e.g. if the command is route print the expected output is "Defualt Gateway or Current IP", used if something failed
+    
+    
+    new_response = ""
+    #response = subprocess.Popen(command, stdout=subprocess.PIPE) #Performs the route print command and set's it to equal resonse
+    response = run_actual_command(command)
+    #print(response)
+    for line in response.splitlines(): # iterates through each line of the response and does bellow
+        
+        if searched_var in line: # If in that section it matches " 0.0.0.0" 
+            
+            returned_list = list(line.split()) # The above string is then split into lists 
+            print(returned_list)
+
+            if command == "route print":
+                
+                last_status_loop(returned_list, "Defualt_Gateway", 2) #Calling the function last_status_loop with the output from route print, looking for defualt gateway and the 2nd list item
+                last_status_loop(returned_list, "Current IP", 3) #Calling the function last_status_loop with the output from route print, looking for Current IP and the 3rd list item
+                
+            elif command == "nslookup gqwqweq.com":
+                
+                last_status_loop(returned_list, "DNS server", 1) #Calling the function last_status_loop with the output from nslookup, looking for DNS server and the 1st list item
+                
+            else: #If for any reason this failes
+                
+                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+
+            
+            break
+
+
+        elif searched_var not in response or "UnKnown" in response: # If the searched_var was not found:
+            # We use an if statement to be sure that this section is ran twice each command called
+            if command == "route print":
+                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+            
+            elif command == "nslookup gqwqweq.com":
+                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+            break
+
+
+update_database("route print", " 0.0.0.0", "Defualt Gateway or Current IP") # Calling run_command function using route print and searching lines for " 0.0.0.0"
+
+update_database("nslookup gqwqweq.com", "Address:  ", "DNS Server") # Calling run_command function using nslookup and searching lines for "Address:  "
+
+
+
+
+'''
 
 def run_command(command, searched_var, current_loop_interface): 
 # This function runs the command given, looking for searched_var. It iterates through response line by line, then splits line in to list and passes to last_status_loop()
@@ -397,7 +486,7 @@ run_command("route print", " 0.0.0.0", "Defualt Gateway or Current IP") # Callin
 run_command("nslookup", "Address:  ", "DNS Server") # Calling run_command function using nslookup and searching lines for "Address:  "
 
 ##########################################
-
+'''
 
 
 
@@ -421,9 +510,12 @@ def status_log_message(catagory, message, last_status_log_file, dictionary):
     with open(log_file, "a+") as file:
          file.write(dt_string + " -- STATUS -- " + catagory + " -- " + message + "\n")# writes to log, includes date/time
 
+    
     #Overwrites last_status_log with latest dictionary
     with open(last_status_log_file, 'w') as file: 
         yaml.dump(dictionary, file, sort_keys=False) 
+    
+
 
 
 

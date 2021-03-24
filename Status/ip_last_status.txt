@@ -3,7 +3,7 @@ LoopBack:
 - true
 IP_Cloudflare:
 - 1.1.1.1
-- true
+- false
 IP_Google:
 - 8.8.8.8
 - true
