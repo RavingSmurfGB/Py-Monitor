@@ -1,0 +1,22 @@
+backup_ip_dictionary:
+  LoopBack:
+  - 127.0.0.1
+  - true
+  IP_Cloudflare:
+  - 1.1.1.1
+  - false
+  IP_Google:
+  - 8.8.8.8
+  - false
+2:
+  Name: Marie
+  Age: '22'
+  Sex: Female
+3:
+  name: Luna
+  age: '24'
+4:
+  name: Peter
+  age: '29'
+  sex: Male
+  married: 'Yes'

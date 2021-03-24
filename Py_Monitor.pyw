@@ -101,7 +101,12 @@ from datetime import datetime
 
 
 ##########################################[ISSUES]##########################################
-#When device does not have internet connection, program hangs!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Code allways runs:
+#   in run_command()
+#   elif searched_var not in new_response or " UnKnown" in new_response: # If the searched_var was not found:
+#       because it is scanning each line instead of the whole output
+#   2021/03/24 11:45:05 -- ERROR -- Could not load Defualt Gateway or Current IP from system, current testing IP:
+
 
 #implement error checking for file creation!!
 #   as in on file creation, if cannot create file, popup a warning to user!!! then exit program
@@ -134,9 +139,8 @@ PermissionError: [Errno 13] Permission denied: 'Log\\results.txt'
 
 
 
-
 ##########################################[STARUP]##########################################
-vpn_enabled = True # Used to enable or disable VPN control
+vpn_enabled = True  # Used to enable or disable VPN control
 
 ip_last_status_log = "Status\\ip_last_status.txt" # Creates a variable that stores the last_status info for ip_dictionary
 dns_last_status_log = "Status\\dns_last_status.txt" # Creates a variable that stores the last_status info for dns_dictionary
@@ -231,10 +235,12 @@ def check_last_status(current_last_status, backup_dictionary, check_name):
 
     return current_dictionary
 
+
+
+
 ip_dictionary = check_last_status(ip_last_status_log, backup_ip_dictionary, "IP")
 dns_dictionary = check_last_status(dns_last_status_log, backup_dns_dictionary, "DNS")
 vpn_dictionary = check_last_status(vpn_last_status_log, backup_vpn_dictionary, "VPN")
-
 
 
 
@@ -347,37 +353,47 @@ def run_command(command, searched_var, current_loop_interface):
 #   searched_var -- used to narrow down the line which has the wanted IP, we iterate through line to find searched_var
 #   current_loop_interface -- passes in what the output is expected to be, e.g. if the command is route print the expected output is "Defualt Gateway or Current IP", used if something failed
     
-
+    
     new_response = ""
     response = subprocess.Popen(command, stdout=subprocess.PIPE) #Performs the route print command and set's it to equal resonse
     
     for line in iter(response.stdout.readline, ""): # iterates through each line of the response and does bellow
         line = line.decode("utf-8") # Decodes the result in to utf-8 and converts to string
+        
         new_response = new_response + line
+        
         if searched_var in line: # If in that section it matches " 0.0.0.0" 
             returned_list = list(line.split()) # The above string is then split into lists 
-
+            
 
             if command == "route print":
                 
                 last_status_loop(returned_list, "Defualt_Gateway", 2) #Calling the function last_status_loop with the output from route print, looking for defualt gateway and the 2nd list item
                 last_status_loop(returned_list, "Current IP", 3) #Calling the function last_status_loop with the output from route print, looking for Current IP and the 3rd list item
-
+                
             elif command == "nslookup":
                 last_status_loop(returned_list, "DNS server", 1) #Calling the function last_status_loop with the output from nslookup, looking for DNS server and the 1st list item
-
+                
             else: #If for any reason this failes
+                
                 command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
 
-
+            
             break
 
 
-    if searched_var not in new_response or " UnKnown" in new_response: 
-        command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+        elif searched_var not in new_response or " UnKnown" in new_response: # If the searched_var was not found:
+            # We use an if statement to be sure that this section is ran twice each command called
+            if command == "route print":
+                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+            
+            elif command == "nslookup":
+                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+            break
 
 
 run_command("route print", " 0.0.0.0", "Defualt Gateway or Current IP") # Calling run_command function using route print and searching lines for " 0.0.0.0"
+
 run_command("nslookup", "Address:  ", "DNS Server") # Calling run_command function using nslookup and searching lines for "Address:  "
 
 ##########################################
@@ -464,7 +480,7 @@ def vpn_reconnection():
 
 
                     ##### UNSUCCESSFULL CONNECTION & PREVIOUSLY SUCCESFULL
-                        if vpn_value == False:
+                        if vpn_value == True:
                             vpn_dictionary.update({vpn_key : False}) # Updates the dictionary with latest status
                             status_log_message("VPN Connection",  "VPN Connection Unuccessful", vpn_last_status_log ,vpn_dictionary)
 
@@ -505,6 +521,7 @@ def vpn_reconnection():
 #   arp -- used to log which mac address corresponds to an IP on unsusecful ping
 def ping_loop():
     while True:
+        
         for ip_name in ip_dictionary: # Simply iterates through the ip_dictionary, entry by entry
             print(ip_name)
             ip = ip_dictionary[ip_name][0] # Set's the current IP address in loop from dictionary to ip
@@ -534,9 +551,9 @@ def ping_loop():
                 
             ##### UNSUCCESSFULL PING
             else: ## need to implement not successgull correctly like above
-                print("Down " + ip + " Ping Successful")
+                print("Down " + ip + " Ping Unsuccessful")
                 for ip_name, ip_values in ip_dictionary.items(): # Iterates through ip_dictionary and assigns ip_dict to key and bool_dict to value
-
+                    
 
                     ##### UNSUCCESSFULL PING & PREVIOUSLY SUCCESFULL
                     if ip == ip_values[0] and ip_values[1] == True: # If IP address mateches current in loop & was previously succesfull then:
@@ -635,8 +652,10 @@ thread_ping = threading.Thread(target=ping_loop) # Declares the thread_ping to t
 thread_nslookup = threading.Thread(target=nslookup_loop) # Declares the thread_nslookup to the function nslookup_loop()
 thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn to the function vpn_reconnection()
 
+
 thread_ping.start() 
 thread_nslookup.start() 
+
 
 if vpn_enabled == True:
     thread_vpn.start()

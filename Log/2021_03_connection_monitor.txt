@@ -1,23 +1,2 @@
 
-2021/03/23 01:57:22 -- STARTUP 
-2021/03/23 01:57:22 -- WARNING -- Defualt_Gateway IP was updated 
-2021/03/23 01:57:22 -- WARNING -- Current IP IP was updated 
-2021/03/23 01:57:22 -- WARNING -- DNS server IP was updated 
-2021/03/23 01:57:22 -- STATUS -- PING -- LoopBack -- 127.0.0.1 Ping Successful
-
-2021/03/23 02:01:10 -- STARTUP 
-2021/03/23 02:01:10 -- WARNING -- Defualt_Gateway IP was updated 
-2021/03/23 02:01:10 -- WARNING -- Current IP IP was updated 
-2021/03/23 02:01:26 -- STATUS -- PING -- Dummy test 192.168.3.35 Ping Unsuccessful -- Arp not Found
-
-2021/03/23 02:07:28 -- STARTUP 
-2021/03/23 02:07:28 -- WARNING -- Defualt_Gateway IP was updated 
-2021/03/23 02:07:28 -- WARNING -- Current IP IP was updated 
-
-2021/03/23 02:15:13 -- STARTUP 
-2021/03/23 02:15:13 -- WARNING -- Defualt_Gateway IP was updated 
-2021/03/23 02:15:13 -- WARNING -- Current IP IP was updated 
-
-2021/03/23 02:15:50 -- STARTUP 
-2021/03/23 02:15:50 -- WARNING -- Defualt_Gateway IP was updated 
-2021/03/23 02:15:50 -- WARNING -- Current IP IP was updated 
+2021/03/24 11:49:32 -- STARTUP 
