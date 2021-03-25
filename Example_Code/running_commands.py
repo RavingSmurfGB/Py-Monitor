@@ -3,7 +3,7 @@ import subprocess, threading
 
 
 def test():
-    response = subprocess.getoutput("ping 1.1.1.1 -n 1 ")
+    response = subprocess.getoutput("nslookup ")
 
     #response = subprocess.check_output("dir")
     print(str(response) + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

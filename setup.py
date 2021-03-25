@@ -1,4 +1,4 @@
-import os, shutil, pathlib, ctypes, time, sys, glob, subprocess, stat
+import os, shutil, pathlib, ctypes, sys, subprocess, stat
 
 
 current_file_path = pathlib.Path(__file__).parent.absolute() #This will get the current file path but will not update if you move the setup.py, move the setup.py last 
@@ -16,7 +16,15 @@ print(current_file_path)
 #*. Recreate the shortcuts under programfiles...
 #*. If already installed perhaps delete and reinstall
 
+
+shortcut_name = "Py_Monitor.lnk" # Specify the shortcut link for the program e.g. "Py_Monitor.lnk"
+directory_of_shortcut = "Setup_Files" # Specify under which directory the shortcut link can be found e.g. "Setup_Files"
+# Example file path for the above would be (current_dir)\Setup_Files\Py_Monitor.lnk
+
 reinstall = False
+
+
+
 
 #-1.#////////////////////////////////Admin Check///////////////////////////////
 #Is ran to determine if the program was started with admin rights, if so continues, if not uac prompt 
@@ -41,17 +49,6 @@ print("\n")
 
 
 
-#0.#////////////////////////////////Installing Requirements///////////////////////////////
-print("Installing requirments")
-subprocess.call('cmd /c "pip install -r Requirtements.txt"') ## doesnt wooooooooooooooooooooooooooooooooooooooooooooooooooooooork!
-
-
-
-import progressbar
-
-
-
-
 #1.#////////////////////////////////Setting launch at Startup///////////////////////////////
 print("Setting program to start on boot")
 
@@ -61,9 +58,9 @@ username = os.getlogin()
 
 
 dst_launch_startup_path = ("C:\\Users\\" + username + "\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup") #Creates the path to startup, including the current user.
-src_launch_startup_path = current_file_path.joinpath("support_files\\startup") #Adds support_files\startup to the current file path
+src_launch_startup_path = current_file_path.joinpath(directory_of_shortcut) #Adds support_files\startup to the current file path
 
-check_dst = dst_launch_startup_path + "\\MuteOnMuteOff.lnk" #Creates a full file path to startup file, to check if it exists already
+check_dst = dst_launch_startup_path + "\\" + shortcut_name #Creates a full file path to startup file, to check if it exists already
 
 def startup_copy(): # Defines fucntion to copy seutp file, used later in logic
     file_names = pathlib.Path.iterdir(src_launch_startup_path)
@@ -86,9 +83,7 @@ elif pathlib.Path(check_dst).is_file() == True:
         #insert code to delete file here
         print("not yet implemented")
 
-
 #///////////////////////////////
-
 
 
 print("\n")
@@ -99,10 +94,10 @@ print("\n")
 
 
 dst_launch_startup_path = ("C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs") #Creates the path to startup, including the current user.
-src_launch_startup_path = current_file_path.joinpath("support_files\\start_menu") #Adds support_files\startup to the current file path
+src_launch_startup_path = current_file_path.joinpath(directory_of_shortcut) #Adds support_files\startup to the current file path
 
 
-check_dst = dst_launch_startup_path + "\\MuteOnMuteOff.lnk" #Creates a full file path to startup file, to check if it exists already
+check_dst = dst_launch_startup_path + "\\" + shortcut_name #Creates a full file path to startup file, to check if it exists already
 
 
 def start_menu_copy():
@@ -137,7 +132,7 @@ print("\n")
 #3. ////////////////////////////////Moving Main Files///////////////////////////////
 
 source_dir = current_file_path
-target_dir = 'C:\\Program Files\\MuteOnMuteOff\\' #actual destinatiommmn C:\Program Files 
+target_dir = 'C:\\Program Files\\Py_Monitor\\' #actual destinatiommmn C:\Program Files 
 
 
 def on_rm_error(func, path, exc_info):
@@ -177,7 +172,7 @@ if pathlib.Path(target_dir).is_dir() == False:
 elif pathlib.Path(target_dir).is_dir() == True:
     #If there is a file in startup then:
     if reinstall == False:
-        print("ERROR: Main files already exsists under : \n" + "   " + check_dst + "\n Please select reinstall from the menu if you would like to continue")
+        print("ERROR: Main files already exsists under : \n" + "   " +  "\n Please select reinstall from the menu if you would like to continue")
     if reinstall == True:
         #insert code to delete file here
         print("not yet implemented")
@@ -185,7 +180,7 @@ elif pathlib.Path(target_dir).is_dir() == True:
 
 
 
-
+'''
 
 #3. ////////////////////////////////Moving Main Files///////////////////////////////
 print("Starting Program")
@@ -194,3 +189,4 @@ subprocess.call("cmd /c " + str(start_script)) #str() is needed to convert the w
 input("Press Enter to continue...") # Makes the user hit enter to conitnue
 exit()
 #///////////////////////////////
+'''
