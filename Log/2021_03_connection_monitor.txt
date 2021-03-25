@@ -41,3 +41,28 @@
 2021/03/24 22:10:16 -- WARNING -- Current IP IP was updated 
 2021/03/24 22:10:16 -- WARNING -- DNS server IP was updated 
 2021/03/24 22:10:22 -- STATUS -- PING -- IP_Cloudflare , 1.1.1.1 Ping Unsuccessful -- Arp not Found
+
+2021/03/25 13:24:59 -- STARTUP 
+2021/03/25 13:24:59 -- WARNING -- Defualt_Gateway IP was updated 
+2021/03/25 13:24:59 -- WARNING -- Current IP IP was updated 
+2021/03/25 13:25:02 -- STATUS -- PING -- IP_Cloudflare , 1.1.1.1 Ping Successful
+
+2021/03/25 13:25:45 -- STARTUP 
+2021/03/25 13:25:45 -- WARNING -- Defualt_Gateway IP was updated 
+2021/03/25 13:25:45 -- WARNING -- Current IP IP was updated 
+
+2021/03/25 13:26:14 -- STARTUP 
+2021/03/25 13:26:14 -- WARNING -- Defualt_Gateway IP was updated 
+2021/03/25 13:26:14 -- WARNING -- Current IP IP was updated 
+
+2021/03/25 13:26:31 -- STARTUP 
+2021/03/25 13:26:31 -- WARNING -- Defualt_Gateway IP was updated 
+2021/03/25 13:26:31 -- WARNING -- Current IP IP was updated 
+
+2021/03/25 13:26:46 -- STARTUP 
+2021/03/25 13:26:46 -- WARNING -- Defualt_Gateway IP was updated 
+2021/03/25 13:26:46 -- WARNING -- Current IP IP was updated 
+
+2021/03/25 13:28:47 -- STARTUP 
+2021/03/25 13:28:47 -- WARNING -- Defualt_Gateway IP was updated 
+2021/03/25 13:28:47 -- WARNING -- Current IP IP was updated 

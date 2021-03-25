@@ -1,3 +1,4 @@
-Set oShell = WScript.CreateObject ("WScript.Shell")
-oShell.run "C:\Program Files\Py_Monitor\Support_Files\MuteOnMuteOff.lnk"
-Set WshShell = Nothing
+Set objShell = WScript.CreateObject( "WScript.Shell" )
+objShell.run("""c:\Program Files\Py_Monitor\Setup_Files\Py_Monitor.lnk""")
+Set objShell = Nothing
+

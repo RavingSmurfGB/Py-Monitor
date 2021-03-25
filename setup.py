@@ -1,4 +1,4 @@
-import os, shutil, pathlib, ctypes, sys, subprocess, stat
+import os, shutil, pathlib, ctypes, sys, subprocess, stat, subprocess, time
 
 
 current_file_path = pathlib.Path(__file__).parent.absolute() #This will get the current file path but will not update if you move the setup.py, move the setup.py last 
@@ -44,6 +44,17 @@ else:
     print("Setup was not started with Administrator rights, restarting...")
     ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, " ".join(sys.argv), None, 1)
 
+
+print("\n")
+
+
+
+#0.#////////////////////////////////Installing Pip Requirements///////////////////////////////
+with open("requirements.txt") as file: # Opens requirements.txt
+    for line in file: # reads file line by line
+        subprocess.check_call([sys.executable, '-m', 'pip', 'install', line]) # executes pip install with each line in file
+
+time.sleep(3)
 
 print("\n")
 
@@ -180,12 +191,19 @@ elif pathlib.Path(target_dir).is_dir() == True:
 
 
 
-'''
 
+'''
 #3. ////////////////////////////////Moving Main Files///////////////////////////////
 print("Starting Program")
-start_script = current_file_path.joinpath("support_files\\relaunch.vbs") #Adds the relaunch script to the current directory path
-subprocess.call("cmd /c " + str(start_script)) #str() is needed to convert the windows_path to a string for subproccess
+
+
+file = 'C:\\Program Files\\Py_Monitor\\Support_Files\\relaunch.vbs'
+subprocess.call([file])
+
+#subprocess.Popen(' """C:\Program Files\Py_Monitor\Support_Files\relaunch.vbs""" ') #str() is needed to convert the windows_path to a string for subproccess
+
+#subprocess.call(['"C:\\Program Files\\Py_Monitor\\Support_Files\\relaunch.vbs"'])
+
 input("Press Enter to continue...") # Makes the user hit enter to conitnue
 exit()
 #///////////////////////////////

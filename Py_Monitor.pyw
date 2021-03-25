@@ -1,6 +1,7 @@
-import os, time, subprocess, yaml, pathlib, threading
+import os, time, subprocess, yaml, pathlib, threading, pystray
 from sys import stdout
 from datetime import datetime
+from PIL import Image
 
 
 ##########################################[TO DO]##########################################
@@ -754,6 +755,48 @@ if vpn_enabled == True:
 
 
 ##########################################
+
+
+
+
+
+
+
+##########################################[ICON LOOP]##########################################
+def logfile():
+    print("Opened Log file")
+    programName = "notepad.exe"
+    subprocess.Popen([programName, log_file])
+
+def restart():
+    print("restarted Program")
+    relaunch_script = ("support_files\\relaunch.vbs") #Adds the relaunch script to the current directory path
+    subprocess.call("cmd /c " + str(relaunch_script)) #str() is needed to convert the windows_path to a string for subproccess
+    exit()
+
+def exit():
+    icon.visible = False
+    icon.stop()
+    os._exit(0)
+
+
+Icon = Image.open("Support_Files\\Icon.png")
+#Declares the menu itmes that will be used in the icon menu
+Log = pystray.MenuItem('Log', logfile, default=False)
+exit_menu = pystray.MenuItem('Exit', exit, default=False)
+relaunch_menu = pystray.MenuItem('Relaunch', restart, default=False)
+
+
+# This code will create an icon in the task bar and set to either the variable (pictue) Muteon or Muteoff
+# This code also will need to be run in a continues loop so threading is needed for any other code to run
+while True:
+
+    menu = pystray.Menu(relaunch_menu, exit_menu, Log) 
+    icon = pystray.Icon(name="name", icon=Icon, title="Py Monitor", menu=menu)
+    icon.run()
+
+##########################################
+
 
 
 ''' Based on
