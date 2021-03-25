@@ -1,5 +1,7 @@
 import yaml
 
+#This code will show you how to create, add, change and write a dictionry  of dictionaries
+
 
 # Create a dictionary of dictionaries
 MAIN_dictionary = {"backup_ip_dictionary": {"LoopBack" : ["127.0.0.1", True],
@@ -51,7 +53,7 @@ for key, value in MAIN_dictionary["backup_ip_dictionary"].items():
 
 # then simply overwrite file to stores last_status.txt
 
-    with open("test_log.txt", 'w') as file: 
+    with open("dictionary.txt", 'w') as file: 
         yaml.dump(MAIN_dictionary, file, sort_keys=False) 
 
 

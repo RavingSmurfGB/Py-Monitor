@@ -85,6 +85,8 @@ from PIL import Image
 #   update ip_dictionary periodicly
 #       perhaps use counter in ping thread, when coutner = 0 update ip
 #   implement run_actual_command() for every command ran
+#   Tail log                                                                                                Done
+
 
 
 # Error checking
@@ -105,6 +107,9 @@ from PIL import Image
 
 
 ##########################################[ISSUES]##########################################
+# Latest dns server, current_ip & defualt gateway not passed into ip_last_status.txt
+
+
 # Code allways runs:
 #   in run_command()
 #   elif searched_var not in new_response or " UnKnown" in new_response: # If the searched_var was not found:
@@ -169,7 +174,9 @@ with open(log_file, "a+") as file: #open's the file to allow it to be written to
 backup_ip_dictionary = { #Creates a backup ip dictionary with all the ip addresses needed and defualts set as reachable 
     "LoopBack" : ["127.0.0.1", True],
     "IP_Cloudflare" : ["1.1.1.1" , True],
-    "IP_Google" : ["8.8.8.8" , True]
+    "IP_Google" : ["8.8.8.8" , True],
+    "VPN_Gateway" : ["192.168.0.254" , True],
+    "VPN_PC" : ["192.168.0.1", True]
 }
 
 backup_dns_dictionary = {
@@ -228,6 +235,7 @@ def check_last_status(current_last_status, backup_dictionary, check_name):
                 if str(tuple(backup_dictionary.keys())).strip('(' + ')') in str(tuple(tmp_current_last_status.keys())).strip('(' + ')'): # This checks whether the keys of backup_dictionary is contained in the loaded file 
 
                     current_dictionary = tmp_current_last_status # on one loop this makes ip_dictionary what is read from the file, then it does the same for dns_dictionary
+
                 else: 
                     current_dictionary = backup_dictionary # if file is empty, load backup_dictionary, file last_status will be overwitten later on 
                     write_backup_dictionary(current_last_status, current_dictionary, check_name)
@@ -430,66 +438,6 @@ update_database("nslookup gqwqweq.com", "Address:  ", "DNS Server") # Calling ru
 
 
 
-'''
-
-def run_command(command, searched_var, current_loop_interface): 
-# This function runs the command given, looking for searched_var. It iterates through response line by line, then splits line in to list and passes to last_status_loop()
-
-# Variables used:
-#   response -- the bytes response from running the passed in command (either nslookup or route print)
-#   line -- simply represents respone split in to lines
-#   command -- used to pass in which command to run
-#   returned_list -- is a list of the output, showed in line, contains the wanted IP
-#   searched_var -- used to narrow down the line which has the wanted IP, we iterate through line to find searched_var
-#   current_loop_interface -- passes in what the output is expected to be, e.g. if the command is route print the expected output is "Defualt Gateway or Current IP", used if something failed
-    
-    
-    new_response = ""
-    response = subprocess.Popen(command, stdout=subprocess.PIPE) #Performs the route print command and set's it to equal resonse
-    
-    for line in iter(response.stdout.readline, ""): # iterates through each line of the response and does bellow
-        line = line.decode("utf-8") # Decodes the result in to utf-8 and converts to string
-        
-        new_response = new_response + line
-        
-        if searched_var in line: # If in that section it matches " 0.0.0.0" 
-            returned_list = list(line.split()) # The above string is then split into lists 
-            
-
-            if command == "route print":
-                
-                last_status_loop(returned_list, "Defualt_Gateway", 2) #Calling the function last_status_loop with the output from route print, looking for defualt gateway and the 2nd list item
-                last_status_loop(returned_list, "Current IP", 3) #Calling the function last_status_loop with the output from route print, looking for Current IP and the 3rd list item
-                
-            elif command == "nslookup":
-                last_status_loop(returned_list, "DNS server", 1) #Calling the function last_status_loop with the output from nslookup, looking for DNS server and the 1st list item
-                
-            else: #If for any reason this failes
-                
-                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
-
-            
-            break
-
-
-        elif searched_var not in new_response or " UnKnown" in new_response: # If the searched_var was not found:
-            # We use an if statement to be sure that this section is ran twice each command called
-            if command == "route print":
-                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
-            
-            elif command == "nslookup":
-                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
-            break
-
-
-run_command("route print", " 0.0.0.0", "Defualt Gateway or Current IP") # Calling run_command function using route print and searching lines for " 0.0.0.0"
-
-run_command("nslookup", "Address:  ", "DNS Server") # Calling run_command function using nslookup and searching lines for "Address:  "
-
-##########################################
-'''
-
-
 
 
 
@@ -668,7 +616,7 @@ def ping_loop():
                         status_log_message("PING", message, ip_last_status_log , ip_dictionary)
 
 
-            time.sleep(2)
+            time.sleep(30)
 ##########################################
 
 
@@ -731,7 +679,7 @@ def nslookup_loop():
 
 
 
-            time.sleep(1)
+            time.sleep(30)
 ##########################################
 
 
@@ -745,6 +693,7 @@ thread_ping = threading.Thread(target=ping_loop) # Declares the thread_ping to t
 thread_nslookup = threading.Thread(target=nslookup_loop) # Declares the thread_nslookup to the function nslookup_loop()
 thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn to the function vpn_reconnection()
 
+print(str(ip_dictionary))
 
 thread_ping.start() 
 thread_nslookup.start() 
@@ -765,8 +714,9 @@ if vpn_enabled == True:
 ##########################################[ICON LOOP]##########################################
 def logfile():
     print("Opened Log file")
-    programName = "notepad.exe"
-    subprocess.Popen([programName, log_file])
+    subprocess.Popen('tail_log.bat', creationflags=subprocess.CREATE_NEW_CONSOLE)
+
+    
 
 def restart():
     print("restarted Program")
@@ -782,7 +732,7 @@ def exit():
 
 Icon = Image.open("Support_Files\\Icon.png")
 #Declares the menu itmes that will be used in the icon menu
-Log = pystray.MenuItem('Log', logfile, default=False)
+Log = pystray.MenuItem('Log', logfile, default=True)
 exit_menu = pystray.MenuItem('Exit', exit, default=False)
 relaunch_menu = pystray.MenuItem('Relaunch', restart, default=False)
 
