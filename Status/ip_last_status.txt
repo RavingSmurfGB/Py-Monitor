@@ -1,6 +1,6 @@
 LoopBack:
 - 127.0.0.1
-- true
+- false
 IP_Cloudflare:
 - 1.1.1.1
 - false
