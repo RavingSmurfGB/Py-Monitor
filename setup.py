@@ -54,7 +54,8 @@ with open("requirements.txt") as file: # Opens requirements.txt
     for line in file: # reads file line by line
         subprocess.check_call([sys.executable, '-m', 'pip', 'install', line]) # executes pip install with each line in file
 
-time.sleep(3)
+print("Waiting for requirements to install")
+time.sleep(10)
 
 print("\n")
 

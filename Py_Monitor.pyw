@@ -104,6 +104,11 @@ from PIL import Image
 # correct defualt_gateway spelling in code and log file
 
 
+#   vpn_reconnection() should call a DNS update
+#       When using VPN , the DNS server will be used from the VPN
+#       however we update the DNS server before the VPN is connected, which may cause a difference
+#       Dns will need to be updated if the VPN fails to connect/reconnect
+
 ##########################################
 
 
@@ -136,21 +141,21 @@ with open(log_file, "a+") as file: #open's the file to allow it to be written to
 
 # This code will create a backup dictionary and input the static values which should allways be used i ncase the ip_last_status.txt does not exist
 backup_ip_dictionary = { #Creates a backup ip dictionary with all the ip addresses needed and defualts set as reachable 
-    "LoopBack" : ["127.0.0.1", True],
-    "IP_Cloudflare" : ["1.1.1.1" , True],
-    "IP_Google" : ["8.8.8.8" , True],
-    "VPN_Gateway" : ["192.168.0.254" , True],
-    "VPN_PC" : ["192.168.0.1", True]
+    "LoopBack" : ["127.0.0.1", False],
+    "IP_Cloudflare" : ["1.1.1.1" , False],
+    "IP_Google" : ["8.8.8.8" , False],
+    "VPN_Gateway" : ["192.168.0.254" , False],
+    "VPN_PC" : ["192.168.0.1", False]
 }
 
 backup_dns_dictionary = {
-    "Google.com" : True,
-    "Yahoo.com" : True,
-    "Aws.amazon.com" : True
+    "Google.com" : False,
+    "Yahoo.com" : False,
+    "Aws.amazon.com" : False
 }
 
 backup_vpn_dictionary = {
-    "Home-Split-Tunnel" : True
+    "Home-Split-Tunnel" : False
 }
 
 
@@ -249,6 +254,9 @@ def check_create_vpn():
 
     return vpn_exists
 ##########################################
+
+
+
 
 
 
@@ -423,7 +431,9 @@ update_database("nslookup gqwqweq.com", "Address:  ", "DNS Server") # Calling ru
 
 
 
-def status_log_message(catagory, message, last_status_log_file, dictionary):
+
+
+def status_log_message(catagory, message, last_status_log_file, dictionary): # used for the threads only!!
 # This function will write to log_file with a message
 
 # Variables used:
@@ -517,7 +527,6 @@ def vpn_reconnection():
 
 
 ##########################################
-
 
 
 
@@ -674,13 +683,12 @@ thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn
 
 
 
+
 thread_ping.start() 
 thread_nslookup.start() 
 
-
 if vpn_enabled == True:
     thread_vpn.start()
-
 
 ##########################################
 
