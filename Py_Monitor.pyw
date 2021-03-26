@@ -610,7 +610,7 @@ def ping_loop():
                         status_log_message("PING", message, ip_last_status_log , ip_dictionary)
 
 
-            time.sleep(30)
+            time.sleep(1)
 ##########################################
 
 
@@ -673,7 +673,7 @@ def nslookup_loop():
 
 
 
-            time.sleep(30)
+            time.sleep(1)
 ##########################################
 
 
