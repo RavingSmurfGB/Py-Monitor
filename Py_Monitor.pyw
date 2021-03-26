@@ -23,7 +23,6 @@ from PIL import Image
 
 
 # Logging
-#   Store month logs in seperate files                                                                      Done
 #   Store whether the Ip was last reachable in a dictionary with the IP                                     Done
 #       only log on successfull ping if previous ping was unsuccessfull                                     Done
 #       only log on unsuccessfull ping if previous was not successfull                                      Done
@@ -101,6 +100,13 @@ from PIL import Image
 
 
 ##########################################[ISSUES]##########################################
+
+# Setup file may have to be ran multiple times, or via cmd to work
+
+#ship with defualt data in various last status .txt's
+# ship with empty connection monitor log
+
+
 # correct defualt_gateway spelling in code and log file
 
 
@@ -126,7 +132,7 @@ vpn_last_status_log = "Status\\vpn_last_status.txt" # Creates a variables that s
 
 
 date_string = datetime.now().strftime("%Y_%m_") #creates a year_month string for use in creating log file
-log_file = "Log\\" + date_string + "connection_monitor.txt" # sets log file to be current month + connection_monitor.txt
+log_file = "Log\\" + "connection_monitor.txt" # sets log file to be current month + connection_monitor.txt
 
 
 

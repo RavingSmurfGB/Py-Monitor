@@ -22,12 +22,12 @@ FOR /F "skip=1 tokens=1-6" %%G IN ('WMIC Path Win32_LocalTime Get Day^,Hour^,Min
 
 :: The command we are trying to run: powershell -command Get-Content %0\..\Log\2021_03_connection_monitor.txt -Wait
 set FILE_PATH= %0\..\Log\
-set FILE_NAME=_connection_monitor.txt
-Set _isodate=%FILE_PATH%%_yyyy%_%_mm%%FILE_NAME%
+set FILE_NAME=connection_monitor.txt
+Set _isodate=%FILE_PATH%%FILE_NAME%
 
 Echo %_isodate%
-set WAIT=-Wait
+set WAIT= -Wait
 
-set COMMAND= Get-Content %_isodate% %WAIT%
+set COMMAND= Get-Content %_isodate%%WAIT%
 powershell -command %COMMAND%
 

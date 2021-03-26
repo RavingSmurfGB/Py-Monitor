@@ -1,0 +1,3 @@
+Google.com: true
+Yahoo.com: false
+Aws.amazon.com: false
