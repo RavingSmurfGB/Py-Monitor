@@ -23,13 +23,7 @@ from PIL import Image
 
 
 # Logging
-#   Investigate viability of having one last_status file 
-#       contaning each dictionary
-#       then pulling only the dictionary that is needed at that time
-#       also how to dump and overwrite only that dictionary
-#   Store 6/ 12 months worth of logs                                                                            Partly
-#       store month logs in seperate files                                                                  Done
-#       delete anythin that is older
+#   Store month logs in seperate files                                                                      Done
 #   Store whether the Ip was last reachable in a dictionary with the IP                                     Done
 #       only log on successfull ping if previous ping was unsuccessfull                                     Done
 #       only log on unsuccessfull ping if previous was not successfull                                      Done
@@ -37,9 +31,7 @@ from PIL import Image
 #        if ip was same copy bool, if not same defualt bool and put warning in log                          Done
 #         implemant this per ns loookup / route print                                                       Done
 #   Merge logging into one function                                                                         Done
-#   Check if log file is empty or doesnt contain backup dictionary keys                                     Partly, IP
-#       if so rewrite
-#       implement in one function
+
 
 
 # Ping 
@@ -76,9 +68,6 @@ from PIL import Image
 #       reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
 #   windows firewall Allow rule for icmp acrross networks would be nice :)
 #   Document all the code                                                                                   Done
-#   Move last_status files                                                                                  Done
-#   Improve error checking last status with backup_ip_dictionary
-#       to include actual ip addresses, backup_ip_dictionary value 0
 #   replace datetime update with function that returns current datetime
 #   verbose logging where every succesful and unsucesful:
 #       (ping, nslookup, vpn connection/vpn creation) is logged
@@ -86,12 +75,14 @@ from PIL import Image
 #       perhaps use counter in ping thread, when coutner = 0 update ip
 #   implement run_actual_command() for every command ran
 #   Tail log                                                                                                Done
+#   Use one function to write to log file and last status
+#       also implement error checking, if cannot write to file then exit code
+#   Look into updating ip detection with powershell
+#       DNS --  Get-DnsClientServerAddress | Select-Object -ExpandProperty ServerAddresses
 
 
 
 # Error checking
-#   error check to see if backup dictionaries are at least contained in respective last_status.txt          Partly, IP
-#
 #   Error check, implement for DNS, Defualt gateway and ARP
 #       If value is not ' 0.0.0.0' in defualt gateway code for e.g. , code will crash currently
 #       perhaps make command calling into one function
@@ -99,6 +90,9 @@ from PIL import Image
 #   if ping recieves Reply from 192.168.3.30: Destination host unreachable.
 #       and the ip within that string is not the same as the current one, perhaps re-do ip check at startup to modify the ip_dictionary
 #       may have to then update ip_dictionary in thread someway
+#
+#   implement error checking for file creation!!
+#       as in on file creation, if cannot create file, popup a warning to user!!! then exit program
 
 ##########################################
 
@@ -107,38 +101,8 @@ from PIL import Image
 
 
 ##########################################[ISSUES]##########################################
-# Latest dns server, current_ip & defualt gateway not passed into ip_last_status.txt
+# correct defualt_gateway spelling in code and log file
 
-
-# Code allways runs:
-#   in run_command()
-#   elif searched_var not in new_response or " UnKnown" in new_response: # If the searched_var was not found:
-#       because it is scanning each line instead of the whole output
-#   2021/03/24 11:45:05 -- ERROR -- Could not load Defualt Gateway or Current IP from system, current testing IP:
-
-
-#implement error checking for file creation!!
-#   as in on file creation, if cannot create file, popup a warning to user!!! then exit program
-
-#re_write_warning not working in last_status_loop() allways triggers when should not!
-#   allways puts WARNING -- Defualt_Gateway IP was updated  // into log
-#   allways puts WARNING -- Current IP IP was updated  // into log
-#   allways puts WARNING -- DNS server IP was updated  // into log
-
-
-
-# When placed in program files, gives error:
-'''
-Traceback (most recent call last):
-  File "py_ping.pyw", line 102, in <module>
-    with open(log_file, "a+") as file: #open's the file to allow it to be written to
-PermissionError: [Errno 13] Permission denied: 'Log\\results.txt'
-''' 
-
-#MAYBE FIX, i noticed the files inside the \programfiles\py monitor\ where owned by admin 
-# in the mute on mute offf program they are owned by Joe and can run
-# therefore copying via the setup script must retain the previous owner and permissions that work
-# implement setup script to copy stuff over and see!! 
 
 ##########################################
 
@@ -180,9 +144,9 @@ backup_ip_dictionary = { #Creates a backup ip dictionary with all the ip address
 }
 
 backup_dns_dictionary = {
-    "google.com" : True,
-    "yahoo.com" : True,
-    "aws.amazon.com" : True
+    "Google.com" : True,
+    "Yahoo.com" : True,
+    "Aws.amazon.com" : True
 }
 
 backup_vpn_dictionary = {
@@ -295,53 +259,6 @@ def check_create_vpn():
 
 ##########################################[UPDATING IP ADDRESSES]##########################################
 
-def re_write_warning(warning_msg): # Gives warning in resulsts.txt if DNS/current ip/ defualt gateway changed
-    with open(log_file, "a+") as file: #open's the file to allow it to be written to
-        file.write(dt_string + " -- WARNING -- " + warning_msg + " IP was updated \n")# writes to log new startup, includes date/time
-
-
-
-def last_status_loop(returned_list, named_ip, output_list_placement):
-# This function is resposible for iterating through ip_last_status.txt, if there is a match with name and returned IP address from command outputs, writes it and last boolean to ip_dictionary
-# If there is not a match it will write returned IP address with defualt booleans
-
-# Variables used:
-#   returned_list -- the output line, in list form, from running run_command()
-#   named_ip -- the string we are trying to find from ip_last_status.txt
-#   output_list_placement -- where in the returned_list we are looking for the correct output
-#   tmp_ip_dictionary -- a temporary dictionary that represents ip_last_status.txt, loaded by yaml
-#   ip_name -- the key collum for tmp_ip_dictionary
-#   ip_values -- the value collum for tmp_ip_dictionary
-#       ip_values[0] -- Being IP address
-#       ip_values[1] -- being last state, represented in bool 
-#   no_match -- a variable used to determine if a match for the named_ip and the ip_values[0]
-#   last_state -- used to determine whether to use the defualt bool, or load srom ip_last_status.txt
-    
-    with open(ip_last_status_log) as file: # Opens the file ip_last_status.txt
-        
-        tmp_ip_dictionary = yaml.load(file, Loader=yaml.FullLoader) # Set the contents to = tmp_ip_dictionary
-        
-        for ip_name, ip_values in tmp_ip_dictionary.items(): #Loads the tmp_ip_dictionary with ip_name as keys and ip_values as value and iterates through each line
-
-            if ip_name == named_ip and ip_values[0] == returned_list[1]: # If the line matches "DNS server" and the ip address returned from nslookup
-                
-                last_state = ip_values[1] # We set the variable to equal the boolean from last_status .txt
-                no_match = False # Checking to see if we returned a match or not
-                break # This should cancel the for loop, meaning once a match is found we go straight to writing the .././
-
-            else: # This code will run a number of times, but since we are only setting variables it does not matter
-                last_state = True # We set the variable to equal the defualt
-                no_match = True # Checking to see if we returned a match or not
-
-                
-        if no_match == True: # If a match was not found:
-            re_write_warning(named_ip) # Set warning message and pass it in to the re_write_warning function
-        
-        ip_dictionary[named_ip] = [returned_list[output_list_placement], last_state] #Adds the DNS server to the ip_dictionary with returned DNS IP & last_dns_server boolean
-
-                    
-
-
 
 
 def command_failed(current_loop_interface):
@@ -377,6 +294,71 @@ def run_actual_command(command):
     return new_response
 
 
+def write_to_logfile(message):
+# Simply writes to log file with passed in message
+# Also updates date time
+    dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S") #set's the date and time to now
+    with open(log_file, "a+") as file:
+        file.write(dt_string + message + "\n")
+
+
+
+
+
+
+
+
+
+def write_updated_logfile(returned_list, interface, location):
+# This funtion will iterate through ip_dictionary and determine if the interface is contained in ip_dictionary
+# If so, it will check if the ip address in ip_dictionary matches what is configured on device
+#   If it matches it will not update
+#   If it doesnt match it will update ip_dictionary, write it to ip_last_status_log and set warning in log file
+# If interface was not found in ip_dictionary to begin with it will update ip_dictionary, write it to ip_last_status_log and set warning in log file
+
+# Variables used:
+#   returned_list -- is the line containing new_ip from update_database()
+#   ip_value_list -- Used to create a list of all ip addresses from ip_dictionary,  stored in ip_dictionary.values() in lists 0th position
+#   key -- refrances ip_dictionary.keys() in order with value
+#   value -- refrances ip_dictionary value[0] in order with key
+#   ip_dictionary -- get latest status and information
+#   interface -- is passed in, used to represent current interface the function is iterating on
+#   ip_last_status_log -- refrences location of ip_last_status_log.txt
+    
+    
+    if interface in ip_dictionary.keys(): # If interface (current ip etc..) is in ip_dictionary.keys() 
+
+
+        ip_value_list = [] #Creates emtpy list
+        for item in ip_dictionary.values():# Iterates through each value 
+            ip_value_list.append(item[0]) # appends each ip_dictionary value to it, in this case we are specifying only the 0th entry from the list inside each ip_dictionary value
+
+        for key, value in zip(ip_dictionary.keys(), ip_value_list): # iterates through ip_dictionary.keys() and ip_value_list in order
+
+
+            if key == interface and value != returned_list[location]: # name from dictionary matches passed in interface name, but ip addresses do not match
+
+                ip_dictionary[interface] = [returned_list[location], False] # Updates the ip_dictionary key, value pair based on new info
+
+                write_to_logfile(message = " -- WARNING -- Updated " + interface +  " " + returned_list[location]) # Calls write_to_logfile() to append current log file with warning
+
+                with open(ip_last_status_log, 'w') as file: # Writes latest info to ip dictionary
+                    yaml.dump(ip_dictionary, file, sort_keys=False) 
+
+
+
+
+    elif interface not in ip_dictionary.keys():# If interface (current ip etc..) is in ip_dictionary.keys() 
+        print("\n" + "NO MATCH FOUND" + "\n")
+
+        ip_dictionary[interface] = [returned_list[location], False] # Updates the ip_dictionary key, value pair based on new info
+
+        write_to_logfile(message = " -- WARNING -- Updated " + interface +  " " + returned_list[location]) # Calls write_to_logfile() to append current log file with warning
+
+        with open(ip_last_status_log, 'w') as file: # Writes latest info to ip dictionary
+            yaml.dump(ip_dictionary, file, sort_keys=False) 
+
+
 
 
 
@@ -392,7 +374,8 @@ def update_database(command, searched_var, current_loop_interface):
 #   searched_var -- used to narrow down the line which has the wanted IP, we iterate through line to find searched_var
 #   current_loop_interface -- passes in what the output is expected to be, e.g. if the command is route print the expected output is "Defualt Gateway or Current IP", used if something failed
     
-    
+
+    error = " -- ERROR -- Could not load " + current_loop_interface +  " from system, loading backup IP addresses:" + "\n " + str(ip_dictionary) 
     new_response = ""
     #response = subprocess.Popen(command, stdout=subprocess.PIPE) #Performs the route print command and set's it to equal resonse
     response = run_actual_command(command)
@@ -402,20 +385,20 @@ def update_database(command, searched_var, current_loop_interface):
         if searched_var in line: # If in that section it matches " 0.0.0.0" 
             
             returned_list = list(line.split()) # The above string is then split into lists 
-            print(returned_list)
+
 
             if command == "route print":
                 
-                last_status_loop(returned_list, "Defualt_Gateway", 2) #Calling the function last_status_loop with the output from route print, looking for defualt gateway and the 2nd list item
-                last_status_loop(returned_list, "Current IP", 3) #Calling the function last_status_loop with the output from route print, looking for Current IP and the 3rd list item
+                write_updated_logfile(returned_list, "Defualt_Gateway", 2) #Calling the function last_status_loop with the output from route print, looking for defualt gateway and the 2nd list item
+                write_updated_logfile(returned_list, "Current_IP", 3) #Calling the function last_status_loop with the output from route print, looking for Current IP and the 3rd list item
                 
             elif command == "nslookup gqwqweq.com":
                 
-                last_status_loop(returned_list, "DNS server", 1) #Calling the function last_status_loop with the output from nslookup, looking for DNS server and the 1st list item
+                write_updated_logfile(returned_list, "DNS_server", 1) #Calling the function last_status_loop with the output from nslookup, looking for DNS server and the 1st list item
                 
             else: #If for any reason this failes
-                
-                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+                write_to_logfile(error)
+                #command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
 
             
             break
@@ -424,21 +407,17 @@ def update_database(command, searched_var, current_loop_interface):
         elif searched_var not in response or "UnKnown" in response: # If the searched_var was not found:
             # We use an if statement to be sure that this section is ran twice each command called
             if command == "route print":
-                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+                write_to_logfile(error)
+                #command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
             
             elif command == "nslookup gqwqweq.com":
-                command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
+                write_to_logfile(error)
+                #command_failed(current_loop_interface) #Calls the command_failed() function which writes it was not able to get current_loop_interface to log file
             break
 
 
 update_database("route print", " 0.0.0.0", "Defualt Gateway or Current IP") # Calling run_command function using route print and searching lines for " 0.0.0.0"
-
 update_database("nslookup gqwqweq.com", "Address:  ", "DNS Server") # Calling run_command function using nslookup and searching lines for "Address:  "
-
-
-
-
-
 
 
 
@@ -564,7 +543,7 @@ def ping_loop():
     while True:
         
         for ip_name in ip_dictionary: # Simply iterates through the ip_dictionary, entry by entry
-            print(ip_name)
+            #print(ip_name)
             ip = ip_dictionary[ip_name][0] # Set's the current IP address in loop from dictionary to ip
             response = subprocess.getoutput("ping " + ip + " -n 1") #Performs the ping command and set's it to equal resonse
             dt_string = datetime.now().strftime("%Y/%m/%d %H:%M:%S") #set's the date and time to now
@@ -584,14 +563,14 @@ def ping_loop():
                         print(str(ip_values[0]) + str(ip_values[1])) # This simply print's the current IP address: bool_dict[0] And the if it was last succesfull: bool_dict[1]
                         
 
-                        message =  ip_name + " , "+ ip_values[0] + " Ping Successful"
+                        message =  ip_name + " ("+ ip_values[0] + ") Ping Successful"
                         status_log_message("PING", message, ip_last_status_log , ip_dictionary)
 
 
 
                 
             ##### UNSUCCESSFULL PING
-            else: ## need to implement not successgull correctly like above
+            else: 
                 print("Down " + ip + " Ping Unsuccessful")
                 for ip_name, ip_values in ip_dictionary.items(): # Iterates through ip_dictionary and assigns ip_dict to key and bool_dict to value
                     
@@ -612,7 +591,7 @@ def ping_loop():
                             arp = (" -- Arp not Found")
 
 
-                        message =  ip_name + " , "+ ip_values[0] + " Ping Unsuccessful" + arp
+                        message =  ip_name + " ("+ ip_values[0] + ") Ping Unsuccessful" + arp
                         status_log_message("PING", message, ip_last_status_log , ip_dictionary)
 
 
@@ -693,7 +672,7 @@ thread_ping = threading.Thread(target=ping_loop) # Declares the thread_ping to t
 thread_nslookup = threading.Thread(target=nslookup_loop) # Declares the thread_nslookup to the function nslookup_loop()
 thread_vpn = threading.Thread(target=vpn_reconnection) # Declares the thread_vpn to the function vpn_reconnection()
 
-print(str(ip_dictionary))
+
 
 thread_ping.start() 
 thread_nslookup.start() 
