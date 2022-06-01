@@ -89,9 +89,7 @@ from PIL import Image
 #   if ping recieves Reply from 192.168.3.30: Destination host unreachable.
 #       and the ip within that string is not the same as the current one, perhaps re-do ip check at startup to modify the ip_dictionary
 #       may have to then update ip_dictionary in thread someway
-#
-#   implement error checking for file creation!!
-#       as in on file creation, if cannot create file, popup a warning to user!!! then exit program
+
 
 ##########################################
 
@@ -109,13 +107,6 @@ from PIL import Image
 
 # correct defualt_gateway spelling in code and log file
 
-
-#   vpn_reconnection() should call a DNS update
-#       When using VPN , the DNS server will be used from the VPN
-#       however we update the DNS server before the VPN is connected, which may cause a difference
-#       Dns will need to be updated if the VPN fails to connect/reconnect
-
-##########################################
 
 
 
@@ -230,8 +221,9 @@ dns_dictionary = check_last_status(dns_last_status_log, backup_dns_dictionary, "
 vpn_dictionary = check_last_status(vpn_last_status_log, backup_vpn_dictionary, "VPN")
 
 
-
+##############################################################################################################################################Windows code needs rewriting
 def check_create_vpn():
+    pass
 # This function checks if the vpn has been created if not, it will create it
 # This function is called every time vpn_reconnection is
 
