@@ -1,7 +1,8 @@
-import os, time, subprocess, yaml, pathlib, threading, pystray
+import os, time, subprocess, pathlib, threading, pystray
 from sys import stdout
 from datetime import datetime
 from PIL import Image
+import pyyaml as yaml
 
 
 ##########################################[TO DO]##########################################
